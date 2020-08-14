@@ -1,0 +1,9 @@
+﻿struct
+enum
+
+other
+struct {
+
+    name = string;
+
+}
