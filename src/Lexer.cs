@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections;
+using DataKeep.Tokens;
 
 namespace DataKeep
 {
-    struct Token
-    {
-        public string value;
-        public LexerTypes type;
-    }
-
+  
     enum LexerTypes
     {
         Struct,
@@ -23,7 +19,9 @@ namespace DataKeep
         OpenParen,
         CloseParen,
         OpenCurly,
-        CloseCurly
+        CloseCurly,
+        Abstract,
+        Comma
     }
     
 
@@ -51,9 +49,10 @@ namespace DataKeep
         public void AddKeywords()
         {
             keywordsTypes.Add("struct", LexerTypes.Struct);
+            keywordsTypes.Add("abstract", LexerTypes.Abstract);
             keywordsTypes.Add("enum", LexerTypes.Enum);
-            keywordsTypes.Add("=", LexerTypes.TypeDecl);
-            keywordsTypes.Add("::", LexerTypes.Inheritance);
+            keywordsTypes.Add(":", LexerTypes.TypeDecl);
+            keywordsTypes.Add("->", LexerTypes.Inheritance);
             keywordsTypes.Add("#", LexerTypes.Preprocess);
             keywordsTypes.Add(" ", LexerTypes.Space);
             keywordsTypes.Add(";", LexerTypes.SemiColon);
@@ -62,6 +61,8 @@ namespace DataKeep
             keywordsTypes.Add("{", LexerTypes.OpenCurly);
             keywordsTypes.Add("}", LexerTypes.CloseCurly);
             keywordsTypes.Add("@", LexerTypes.Decorator);
+            keywordsTypes.Add(",", LexerTypes.Comma);
+
         }
 
         public void LexAllLines()

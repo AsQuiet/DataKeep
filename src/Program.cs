@@ -1,5 +1,5 @@
 ﻿using System;
-
+using DataKeep.Tokens;
 namespace DataKeep
 {
     class Program
@@ -13,11 +13,23 @@ namespace DataKeep
             foreach(Token[] ts in lexer.fileTokens)
             {
                 Console.WriteLine("------------");
-                foreach(Token t in ts)
+                Token[] tss = Token.RemoveBeginWhiteSpace(ts);
+                foreach(Token t in tss)
                 {
                     Lexer.PrintToken(t);
                 }
             }
+
+            Parser parser = new Parser(lexer);
+            parser.ParseCurrentLine();
+            parser.ParseCurrentLine();
+            parser.ParseCurrentLine();
+            parser.ParseCurrentLine();
+            parser.ParseCurrentLine();
+            parser.ParseCurrentLine();
+
+
+
 
         }
     }
