@@ -18,6 +18,14 @@ namespace DataKeep
 
         private Token[] decoratorTokens;
 
+        private bool inStruct = false;
+        private bool inEnum = false;
+
+        private PStruct activeStruct;
+        private ArrayList structFieldBuffer;
+
+        private string decoratorBuffer = "";
+
         public Parser(Lexer lexer)
         {
             this.lexer = lexer;
@@ -35,9 +43,15 @@ namespace DataKeep
             DetectStruct();
             DetectEnum();
             DetectField();
-            DetectDecorator();
             DetectEnumEntry();
-            Console.WriteLine("deteoion is done");
+            DetectEndOfScope();
+
+            if (decoratorBuffer != "")
+                decoratorBuffer = "";
+
+            DetectDecorator();
+
+            Console.WriteLine(".. in struct :" + inStruct + " inEnum :" + inEnum + " current deco " + decoratorBuffer);
             currentLine += 1;
         }
 
@@ -46,10 +60,33 @@ namespace DataKeep
         {
             bool hasStruct = Token.IncludesType(GetCurrentLine(), LexerTypes.Struct);
             bool noSemiColon = !Token.IncludesType(GetCurrentLine(), LexerTypes.SemiColon);
+            bool hasInheritance = Token.IncludesType(GetCurrentLine(), LexerTypes.Inheritance);
 
-            if (hasStruct && noSemiColon)
+            if ((hasStruct && noSemiColon) || hasInheritance)
             {
+
                 Console.WriteLine("Detected a struct");
+                inStruct = true;
+
+                string name = "";
+                string inheritance = "";
+
+                int start = Token.IndexOfType(GetCurrentLine(), LexerTypes.Struct) + 1;
+                int stop;
+
+                if (hasInheritance) {
+                    stop = Token.IndexOfType(GetCurrentLine(), LexerTypes.Inheritance);
+                    inheritance = Token.SmashTokens(Token.GetRange(GetCurrentLine(), stop + 1,GetCurrentLine().Length), "");
+                } else
+                    stop = GetCurrentLine().Length;
+
+                name = Token.SmashTokens(Token.RemoveBeginWhiteSpace(Token.GetRange(GetCurrentLine(), start, stop)), "");
+               
+                activeStruct.name = name;
+                activeStruct.inheritance = inheritance;
+                activeStruct.deco = decoratorBuffer;
+                structFieldBuffer = new ArrayList();
+
             }
 
         }
@@ -73,7 +110,21 @@ namespace DataKeep
 
             if (hasTypeDecl && hasSemiColon)
             {
-                Console.WriteLine("muhahaha field detected");
+
+                int typeDeclIndex = Token.IndexOfType(GetCurrentLine(), LexerTypes.TypeDecl);
+                string name = Token.SmashTokens(Token.GetRange(GetCurrentLine(), 0, typeDeclIndex), "");
+
+                int semiColonIndex = Token.IndexOfType(GetCurrentLine(), LexerTypes.SemiColon);
+                string type = Token.SmashTokens(Token.RemoveBeginWhiteSpace(Token.GetRange(GetCurrentLine(), typeDeclIndex + 1, semiColonIndex)), "");
+
+                PField field;
+                field.name = name;
+                field.type = type;
+                field.deco = decoratorBuffer;
+
+                if (inStruct)
+                    structFieldBuffer.Add(field);
+
             }
         }
 
@@ -83,7 +134,9 @@ namespace DataKeep
 
             if (hasDeco)
             {
-                Console.WriteLine("Detected a decorator.");
+                string deco = Token.SmashTokens(Token.RemoveBeginWhiteSpace(Token.GetRange(GetCurrentLine(), 1, GetCurrentLine().Length)), "");
+                decoratorBuffer = deco;
+                Console.WriteLine("new deco : " + deco);
             }
         }
 
@@ -95,7 +148,31 @@ namespace DataKeep
 
             if (hasNothingElse || hasComma)
             {
-                Console.WriteLine("detect ad enum entry");
+                Console.WriteLine("Detected an enum entry.");
+            }
+        }
+
+        private void DetectEndOfScope()
+        {
+            bool hasCloseCurly = Token.IncludesType(GetCurrentLine(), LexerTypes.CloseCurly);
+
+            if (hasCloseCurly)
+            {
+                Console.WriteLine("detected end of scope");
+
+                if (inStruct)
+                {
+                    Console.WriteLine("ending struct scope");
+                    activeStruct.pFields = (PField[])structFieldBuffer.ToArray(typeof(PField));
+
+                    Console.WriteLine(PStruct.ToString(activeStruct));
+                }
+
+                inEnum = false;
+                inStruct = false;
+
+                
+
             }
         }
 

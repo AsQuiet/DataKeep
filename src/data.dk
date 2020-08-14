@@ -1,9 +1,8 @@
-﻿struct
-enum
-
-other
-struct {
-
-    name = string;
-
+﻿@Print
+struct Entity -> abstract
+{
+    name : string;
+    @NoPrint
+    last : string;
+    age : int;
 }

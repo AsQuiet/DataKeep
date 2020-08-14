@@ -75,6 +75,16 @@ namespace DataKeep.Tokens
             return true;
         }
 
+        public static int IndexOfType(Token[] tokens, LexerTypes lt)
+        {
+            for (int i = 0;i<tokens.Length; i++)
+            {
+                if (tokens[i].type == lt)
+                    return i;
+            }
+            return -1;
+        }
+
     }
 
 

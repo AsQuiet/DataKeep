@@ -21,14 +21,15 @@ namespace DataKeep
             }
 
             Parser parser = new Parser(lexer);
-            parser.ParseCurrentLine();
-            parser.ParseCurrentLine();
-            parser.ParseCurrentLine();
-            parser.ParseCurrentLine();
-            parser.ParseCurrentLine();
-            parser.ParseCurrentLine();
 
-
+            parser.ParseCurrentLine();
+            parser.ParseCurrentLine();
+            parser.ParseCurrentLine();
+            parser.ParseCurrentLine();
+            parser.ParseCurrentLine();
+            parser.ParseCurrentLine();
+            parser.ParseCurrentLine();
+            parser.ParseCurrentLine();
 
 
         }

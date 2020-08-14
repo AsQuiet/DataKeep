@@ -74,7 +74,7 @@ namespace DataKeep
                 if (currentLine >= fileHandler.fileLines.Length)
                     break;
 
-                tokens.Add(LexCurrentLine());
+                tokens.Add(Token.RemoveBeginWhiteSpace(LexCurrentLine()));
                 currentLine++;
 
             }
