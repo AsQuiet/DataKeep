@@ -2,6 +2,7 @@
 
 using DataKeep.Tokens;
 using DataKeep.ParserTypes;
+using DataKeep.Syntax;
 
 namespace DataKeep
 {
@@ -28,6 +29,11 @@ namespace DataKeep
             parser.GiveStructInheritance();
             parser.PrintAllData();
             parser.PrintCompileSettings();
+
+
+            SyntaxParser syntaxParser = new SyntaxParser(new FileHandler("main.dks"));
+            syntaxParser.ParseCurrentLine();
+
         }
     }
 }

@@ -15,7 +15,7 @@ namespace DataKeep
 
         public static string ToString(CompileSettings cs)
         {
-            string s =  "CompileSettings(" + cs.namespaceName + ", " + cs.outputFileName + ", using : [";
+            string s = "CompileSettings(" + cs.namespaceName + ", " + cs.outputFileName + ", using : [";
             foreach (string c in cs.usingNames)
                 s += c + ", ";
             return s + "])";
@@ -105,7 +105,7 @@ namespace DataKeep
             DetectField();
             DetectEnumEntry();
             DetectEndOfScope();
-            
+
             if (decoratorBuffer != "")
                 decoratorBuffer = "";
 
@@ -134,14 +134,16 @@ namespace DataKeep
                 int start = Token.IndexOfType(GetCurrentLine(), TokenTypes.Struct) + 1;
                 int stop;
 
-                if (hasInheritance) {
+                if (hasInheritance)
+                {
                     stop = Token.IndexOfType(GetCurrentLine(), TokenTypes.Inheritance);
                     inheritance = Token.SmashTokens(Token.RemoveBeginWhiteSpace(Token.GetRange(GetCurrentLine(), stop + 1, GetCurrentLine().Length)), "");
-                } else
+                }
+                else
                     stop = GetCurrentLine().Length;
 
                 name = Token.SmashTokens(Token.RemoveBeginWhiteSpace(Token.GetRange(GetCurrentLine(), start, stop)), "");
-               
+
                 activeStruct.name = name;
                 activeStruct.inheritance = inheritance;
                 activeStruct.decorators = GetDecorators();
@@ -349,14 +351,14 @@ namespace DataKeep
 
             for (int i = 0; i < pStructs.Count; i++)
             {
-                PStruct currentStruct = (PStruct) pStructs[i];
+                PStruct currentStruct = (PStruct)pStructs[i];
 
                 if (!Token.IsEmpty(currentStruct.inheritance))
                 {
                     Console.WriteLine("Looking for correct struct...");
 
                     // NOTE: change removebeginwhitespace function at the inheritance detection if problems with finding.
-                    foreach(PStruct pStruct in pStructs)
+                    foreach (PStruct pStruct in pStructs)
                     {
                         Console.WriteLine("searching for match : " + pStruct.name + "; with " + currentStruct.inheritance);
                         if (pStruct.name.Contains(currentStruct.inheritance))
@@ -375,7 +377,7 @@ namespace DataKeep
                             currentStruct.pFields = (PField[])newField.ToArray(typeof(PField));
 
                         }
-                        
+
                     }
 
                 }
@@ -392,6 +394,6 @@ namespace DataKeep
 
 
     }
-      
+
 
 }

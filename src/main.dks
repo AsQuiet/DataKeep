@@ -1,0 +1,9 @@
+﻿::defstruct default /NoBody 
+struct %name%
+{
+::$ default
+public %fieldtype% %fieldname%;
+::$ DefaultInt
+public %fieldtype% %fieldname% = 0; 
+}
+::endstruct
