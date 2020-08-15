@@ -1,17 +1,44 @@
 ﻿using System;
-using DataKeep;
 using System.Collections;
-using System.Threading.Channels;
 
 namespace DataKeep.Tokens
 {
 
+    enum TokenTypes
+    {
+        Struct,
+        Enum,
+        Inheritance,
+        TypeDecl,
+        Preprocess,
+        Undefined,
+        Decorator,
+        Space,
+        SemiColon,
+        OpenParen,
+        CloseParen,
+        OpenCurly,
+        CloseCurly,
+        Abstract,
+        Comma
+    }
+
     struct Token
     {
         public string value;
-        public LexerTypes type;
+        public TokenTypes type;
 
-        public static bool IncludesType(Token[] tokens, LexerTypes type)
+        public static string ToString(Token t)
+        {
+            return "Token(" + t.value + ", " + t.type + ")";
+        }
+
+        public static void PrintToken(Token t)
+        {
+            Console.WriteLine(Token.ToString(t));
+        }
+
+        public static bool IncludesType(Token[] tokens, TokenTypes type)
         {
             foreach(Token t in tokens)
             {
@@ -49,7 +76,7 @@ namespace DataKeep.Tokens
             bool add = false;
             foreach(Token t in tokens)
             {
-                if (t.type != LexerTypes.Space)
+                if (t.type != TokenTypes.Space)
                     add = true;
                 if (add)
                     result.Add(t);
@@ -58,13 +85,13 @@ namespace DataKeep.Tokens
             return (Token[])result.ToArray(typeof(Token));
         }
 
-        public static bool TokensOnlyInclude(Token[] tokens, LexerTypes[] includes)
+        public static bool TokensOnlyInclude(Token[] tokens, TokenTypes[] includes)
         {
             foreach(Token t in tokens)
             {
                 bool isIncluded = false;
 
-                foreach(LexerTypes lt in includes)
+                foreach(TokenTypes lt in includes)
                 {
                     isIncluded = isIncluded || lt == t.type;
                 }
@@ -76,7 +103,7 @@ namespace DataKeep.Tokens
             return true;
         }
 
-        public static int IndexOfType(Token[] tokens, LexerTypes lt)
+        public static int IndexOfType(Token[] tokens, TokenTypes lt)
         {
             for (int i = 0;i<tokens.Length; i++)
             {
@@ -97,9 +124,6 @@ namespace DataKeep.Tokens
                     result.Add(t);
                 else
                 {
-                    /*bool isEmpty = true;
-                    foreach (char c in t.value)
-                        isEmpty = isEmpty && (c.Equals(" ") || c.Equals(""));*/
                     hasFoundCharacter = !Token.IsEmpty(t.value);
                 }
                 

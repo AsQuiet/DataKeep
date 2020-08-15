@@ -1,39 +1,20 @@
 ﻿using System;
 using System.Collections;
+
 using DataKeep.Tokens;
 
 namespace DataKeep
 {
-  
-    enum LexerTypes
-    {
-        Struct,
-        Enum,
-        Inheritance,
-        TypeDecl,
-        Preprocess,
-        Undefined,
-        Decorator,
-        Space,
-        SemiColon,
-        OpenParen,
-        CloseParen,
-        OpenCurly,
-        CloseCurly,
-        Abstract,
-        Comma
-    }
-    
 
     class Lexer
     {
 
         public FileHandler fileHandler;
 
-        public int currentLine = 0;     // lines of fielhandler
+        public int currentLine = 0;     // lines of filehandler
         public int lineIndex = 0;       // charachter indices
 
-        private Hashtable keywordsTypes;
+        private Hashtable keywordTypes;
 
         public Token[][] fileTokens;
 
@@ -42,26 +23,28 @@ namespace DataKeep
             fileHandler = fh;
             fh.LoadFile();
 
-            keywordsTypes = new Hashtable();
+            keywordTypes = new Hashtable();
             AddKeywords();
+
         }
 
         public void AddKeywords()
         {
-            keywordsTypes.Add("struct", LexerTypes.Struct);
-            keywordsTypes.Add("abstract", LexerTypes.Abstract);
-            keywordsTypes.Add("enum", LexerTypes.Enum);
-            keywordsTypes.Add(":", LexerTypes.TypeDecl);
-            keywordsTypes.Add("->", LexerTypes.Inheritance);
-            keywordsTypes.Add("#", LexerTypes.Preprocess);
-            keywordsTypes.Add(" ", LexerTypes.Space);
-            keywordsTypes.Add(";", LexerTypes.SemiColon);
-            keywordsTypes.Add("(", LexerTypes.OpenParen);
-            keywordsTypes.Add(")", LexerTypes.CloseParen);
-            keywordsTypes.Add("{", LexerTypes.OpenCurly);
-            keywordsTypes.Add("}", LexerTypes.CloseCurly);
-            keywordsTypes.Add("@", LexerTypes.Decorator);
-            keywordsTypes.Add(",", LexerTypes.Comma);
+
+            keywordTypes.Add("struct", TokenTypes.Struct);
+            keywordTypes.Add("abstract", TokenTypes.Abstract);
+            keywordTypes.Add("enum", TokenTypes.Enum);
+            keywordTypes.Add(":", TokenTypes.TypeDecl);
+            keywordTypes.Add("->", TokenTypes.Inheritance);
+            keywordTypes.Add("#", TokenTypes.Preprocess);
+            keywordTypes.Add(" ", TokenTypes.Space);
+            keywordTypes.Add(";", TokenTypes.SemiColon);
+            keywordTypes.Add("(", TokenTypes.OpenParen);
+            keywordTypes.Add(")", TokenTypes.CloseParen);
+            keywordTypes.Add("{", TokenTypes.OpenCurly);
+            keywordTypes.Add("}", TokenTypes.CloseCurly);
+            keywordTypes.Add("@", TokenTypes.Decorator);
+            keywordTypes.Add(",", TokenTypes.Comma);
 
         }
 
@@ -92,11 +75,13 @@ namespace DataKeep
                     break;
 
                 Token nToken = GetNextToken();
+
                 tokens.Add(nToken);
 
                 lineIndex += nToken.value.Length;
             }
-            lineIndex = 0;
+
+            lineIndex = 0; // resest for next line
 
             return (Token[]) tokens.ToArray(typeof(Token));    
         }
@@ -109,11 +94,11 @@ namespace DataKeep
             if (nextSymbol == null)
             {
                 nextToken.value = GetCurrentLine()[lineIndex].ToString();
-                nextToken.type = LexerTypes.Undefined;
+                nextToken.type = TokenTypes.Undefined;
             } else
             {
                 nextToken.value = nextSymbol;
-                nextToken.type = (LexerTypes) keywordsTypes[nextSymbol];
+                nextToken.type = (TokenTypes) keywordTypes[nextSymbol];
             }
 
             return nextToken;
@@ -121,15 +106,14 @@ namespace DataKeep
 
         public string GetNextSymbol()
         {
-            foreach(DictionaryEntry de in keywordsTypes)
+            foreach(DictionaryEntry de in keywordTypes)
             {
-                if (StringFitsInLine(de.Key.ToString()))
-                {
-                    if (NextStringIs(de.Key.ToString()))
-                    {
-                        return de.Key.ToString();
-                    }
-                }
+                string key = de.Key.ToString();
+
+                if (StringFitsInLine(key))
+                    if (NextStringIs(key))
+                        return key;
+
             }
             return null;
         }       
@@ -152,17 +136,11 @@ namespace DataKeep
         private bool NextStringIs(string rem)
         {
             bool fits = true;
+
             for (int i = 0; i< rem.Length; i++)
-            {
                 fits = rem[i] == GetCurrentLine()[lineIndex + i] && fits;
-            }
+            
             return fits;
-        }
-
-
-        public static void PrintToken(Token token)
-        {
-            Console.WriteLine("Token(" + token.value + "," + token.type + ")");
         }
     }
 

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections;
-using System.ComponentModel.DataAnnotations;
+
 using DataKeep.ParserTypes;
 using DataKeep.Tokens;
 
@@ -47,19 +47,25 @@ namespace DataKeep
         public Parser(Lexer lexer)
         {
             this.lexer = lexer;
+            SetCompileSettingsDefaults();
 
+        }
+
+        public void SetCompileSettingsDefaults()
+        {
             compileSettings.namespaceName = "DataKeep.Output";
             compileSettings.outputFileName = "DataKeepOutput.cs";
             string[] temp = { "System" };
             compileSettings.usingNames = temp;
-
         }
 
         public void PrintAllData()
         {
             Console.WriteLine("\nWriting All The Data.");
+
             foreach (PStruct ps in pStructs)
                 Console.WriteLine(PStruct.ToString(ps));
+
             foreach (PEnum pe in pEnums)
                 Console.WriteLine(PEnum.ToString(pe));
         }
@@ -82,10 +88,11 @@ namespace DataKeep
                 if (currentLine >= lexer.fileTokens.Length)
                     break;
 
-                if (!DetectCommand())
-                    ParseCurrentLine();
+                if (DetectCommand())
+                    currentLine++;
                 else
-                    currentLine += 1;
+                    ParseCurrentLine();
+
                 //Console.WriteLine("currentlineparseDone[in struct : " + inStruct + "; inEnum : " + inEnum + "; current deco: " + decoratorBuffer + "]");
             }
             Console.WriteLine("parsing is done");
@@ -111,9 +118,9 @@ namespace DataKeep
         //
         private void DetectStruct()
         {
-            bool hasStruct = Token.IncludesType(GetCurrentLine(), LexerTypes.Struct);
-            bool noSemiColon = !Token.IncludesType(GetCurrentLine(), LexerTypes.SemiColon);
-            bool hasInheritance = Token.IncludesType(GetCurrentLine(), LexerTypes.Inheritance);
+            bool hasStruct = Token.IncludesType(GetCurrentLine(), TokenTypes.Struct);
+            bool noSemiColon = !Token.IncludesType(GetCurrentLine(), TokenTypes.SemiColon);
+            bool hasInheritance = Token.IncludesType(GetCurrentLine(), TokenTypes.Inheritance);
 
             if ((hasStruct && noSemiColon) || hasInheritance)
             {
@@ -124,11 +131,11 @@ namespace DataKeep
                 string name = "";
                 string inheritance = "";
 
-                int start = Token.IndexOfType(GetCurrentLine(), LexerTypes.Struct) + 1;
+                int start = Token.IndexOfType(GetCurrentLine(), TokenTypes.Struct) + 1;
                 int stop;
 
                 if (hasInheritance) {
-                    stop = Token.IndexOfType(GetCurrentLine(), LexerTypes.Inheritance);
+                    stop = Token.IndexOfType(GetCurrentLine(), TokenTypes.Inheritance);
                     inheritance = Token.SmashTokens(Token.GetRange(GetCurrentLine(), stop + 1,GetCurrentLine().Length), "");
                 } else
                     stop = GetCurrentLine().Length;
@@ -146,18 +153,17 @@ namespace DataKeep
 
         private void DetectEnum()
         {
-            bool hasEnum = Token.IncludesType(GetCurrentLine(), LexerTypes.Enum);
-            bool noSemiColon = !Token.IncludesType(GetCurrentLine(), LexerTypes.SemiColon);
+            bool hasEnum = Token.IncludesType(GetCurrentLine(), TokenTypes.Enum);
+            bool noSemiColon = !Token.IncludesType(GetCurrentLine(), TokenTypes.SemiColon);
 
             if (hasEnum && noSemiColon)
             {
                 Console.WriteLine("Detected an enum");
                 inEnum = true;
 
-                int start = Token.IndexOfType(GetCurrentLine(), LexerTypes.Enum) + 1;
+                int start = Token.IndexOfType(GetCurrentLine(), TokenTypes.Enum) + 1;
                 int end = GetCurrentLine().Length;
                 string name = Token.SmashTokens(Token.RemoveBeginWhiteSpace(Token.GetRange(GetCurrentLine(), start, end)), "");
-                Console.WriteLine("name of enum is: " + name);
 
                 activeEnum.name = name;
                 activeEnum.deco = decoratorBuffer;
@@ -169,16 +175,16 @@ namespace DataKeep
 
         private void DetectField()
         {
-            bool hasTypeDecl = Token.IncludesType(GetCurrentLine(), LexerTypes.TypeDecl);
-            bool hasSemiColon = Token.IncludesType(GetCurrentLine(), LexerTypes.SemiColon);
+            bool hasTypeDecl = Token.IncludesType(GetCurrentLine(), TokenTypes.TypeDecl);
+            bool hasSemiColon = Token.IncludesType(GetCurrentLine(), TokenTypes.SemiColon);
 
             if (hasTypeDecl && hasSemiColon)
             {
 
-                int typeDeclIndex = Token.IndexOfType(GetCurrentLine(), LexerTypes.TypeDecl);
+                int typeDeclIndex = Token.IndexOfType(GetCurrentLine(), TokenTypes.TypeDecl);
                 string name = Token.SmashTokens(Token.StartWithChar(Token.GetRange(GetCurrentLine(), 0, typeDeclIndex)), "");
 
-                int semiColonIndex = Token.IndexOfType(GetCurrentLine(), LexerTypes.SemiColon);
+                int semiColonIndex = Token.IndexOfType(GetCurrentLine(), TokenTypes.SemiColon);
                 string type = Token.SmashTokens(Token.RemoveBeginWhiteSpace(Token.GetRange(GetCurrentLine(), typeDeclIndex + 1, semiColonIndex)), "");
 
                 PField field;
@@ -194,7 +200,7 @@ namespace DataKeep
 
         private void DetectDecorator()
         {
-            bool hasDeco = Token.IncludesType(GetCurrentLine(), LexerTypes.Decorator);
+            bool hasDeco = Token.IncludesType(GetCurrentLine(), TokenTypes.Decorator);
 
             if (hasDeco)
             {
@@ -206,8 +212,8 @@ namespace DataKeep
 
         private void DetectEnumEntry()
         {
-            bool hasComma = Token.IncludesType(GetCurrentLine(), LexerTypes.Comma);
-            LexerTypes[] includes = { LexerTypes.Comma, LexerTypes.Space, LexerTypes.Undefined };
+            bool hasComma = Token.IncludesType(GetCurrentLine(), TokenTypes.Comma);
+            TokenTypes[] includes = { TokenTypes.Comma, TokenTypes.Space, TokenTypes.Undefined };
             bool hasNothingElse = Token.TokensOnlyInclude(GetCurrentLine(), includes);
 
             if ((hasNothingElse || hasComma) && GetCurrentLine().Length != 0)
@@ -217,7 +223,7 @@ namespace DataKeep
 
                 int stop = GetCurrentLine().Length;
                 if (hasComma)
-                    stop = Token.IndexOfType(GetCurrentLine(), LexerTypes.Comma);
+                    stop = Token.IndexOfType(GetCurrentLine(), TokenTypes.Comma);
 
                 entry = Token.SmashTokens(Token.StartWithChar(Token.GetRange(GetCurrentLine(), 0, stop)), "");
                 enumEntryBuffer.Add(entry);
@@ -226,7 +232,7 @@ namespace DataKeep
 
         private void DetectEndOfScope()
         {
-            bool hasCloseCurly = Token.IncludesType(GetCurrentLine(), LexerTypes.CloseCurly);
+            bool hasCloseCurly = Token.IncludesType(GetCurrentLine(), TokenTypes.CloseCurly);
 
             if (hasCloseCurly)
             {
@@ -252,13 +258,13 @@ namespace DataKeep
 
         private bool DetectCommand()
         {
-            bool hasCommandSymbol = Token.IncludesType(GetCurrentLine(), LexerTypes.Preprocess);
+            bool hasCommandSymbol = Token.IncludesType(GetCurrentLine(), TokenTypes.Preprocess);
 
             if (hasCommandSymbol)
             {
                 string command = "";
 
-                int start = Token.IndexOfType(GetCurrentLine(), LexerTypes.Preprocess);
+                int start = Token.IndexOfType(GetCurrentLine(), TokenTypes.Preprocess);
                 int end = GetCurrentLine().Length;
                 command = Token.SmashTokens(Token.RemoveBeginWhiteSpace(Token.GetRange(GetCurrentLine(), start, end)), "");
                 HandleCommand(command);

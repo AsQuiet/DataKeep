@@ -15,15 +15,13 @@ namespace DataKeep
                 Console.WriteLine("------------");
                 Token[] tss = Token.RemoveBeginWhiteSpace(ts);
 
-                foreach(Token t in tss)
-                    Lexer.PrintToken(t);
-                
+                foreach (Token t in tss)
+                    Token.PrintToken(t);   
             }
 
             Parser parser = new Parser(lexer);
 
             parser.ParserAllLines();
-
             parser.PrintAllData();
             parser.PrintCompileSettings();
 
