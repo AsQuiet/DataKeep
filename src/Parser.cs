@@ -12,6 +12,15 @@ namespace DataKeep
         public string namespaceName { get; set; }
         public string[] usingNames;
         public string outputFileName;
+
+        public static string ToString(CompileSettings cs)
+        {
+            string s =  "CompileSettings(" + cs.namespaceName + ", " + cs.outputFileName + ", using : [";
+            foreach (string c in cs.usingNames)
+                s += c + ", ";
+            return s + "])";
+        }
+
     }
 
     class Parser
@@ -55,6 +64,11 @@ namespace DataKeep
                 Console.WriteLine(PEnum.ToString(pe));
         }
 
+        public void PrintCompileSettings()
+        {
+            Console.WriteLine(CompileSettings.ToString(compileSettings));
+        }
+
         private Token[] GetCurrentLine()
         {
             return lexer.fileTokens[currentLine];
@@ -72,7 +86,7 @@ namespace DataKeep
                     ParseCurrentLine();
                 else
                     currentLine += 1;
-                Console.WriteLine("currentlineparseDone[in struct : " + inStruct + "; inEnum : " + inEnum + "; current deco: " + decoratorBuffer + "]");
+                //Console.WriteLine("currentlineparseDone[in struct : " + inStruct + "; inEnum : " + inEnum + "; current deco: " + decoratorBuffer + "]");
             }
             Console.WriteLine("parsing is done");
         }
@@ -92,7 +106,9 @@ namespace DataKeep
             currentLine += 1;
         }
 
-
+        //
+        //      DETECTION FUNCTIONS
+        //
         private void DetectStruct()
         {
             bool hasStruct = Token.IncludesType(GetCurrentLine(), LexerTypes.Struct);
@@ -252,15 +268,36 @@ namespace DataKeep
 
         }
 
+        //
+        //      COMMAND FUNCTIONS
+        //
+
         private void HandleCommand(string command)
         {
-            Console.WriteLine("handling command : " + command);
+            string[] cmds = Token.ConvertToArray(command);
+            switch (cmds[0])
+            {
+                case "#using":
+                    UsingCommand(command);
+                    break;
+                case "#namespace":
+                    NamespaceCommand(ref cmds);
+                    break;
+                default:
+                    break;
+            }
 
-            string[] arguments = Parser.ExtractArguments(command);
-            foreach (string s in arguments)
-                Console.WriteLine(s);
         }
 
+        private void UsingCommand(string command)
+        {
+            compileSettings.usingNames = ExtractArguments(command);
+        }
+
+        private void NamespaceCommand(ref string[] command)
+        {
+            compileSettings.namespaceName = command[1];
+        }
 
         public static string[] ExtractArguments(string s)
         {
@@ -290,6 +327,7 @@ namespace DataKeep
             result.Add(Token.RemoveBeginSpaces(currentArg));
             return (string[])result.ToArray(typeof(string));
         }
+
 
 
     }

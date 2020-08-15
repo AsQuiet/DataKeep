@@ -18,3 +18,17 @@ Compiler command are defined by using the symbol '#' and will tell the compiler 
 
 </ul>
 
+## tags (or decorators)
+```
+
+@Print
+struct Profile
+{
+    name : string; 
+    last : string;
+    age : int;
+    @NoPrint
+    id : ProfileID;
+}
+
+```

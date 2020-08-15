@@ -20,6 +20,7 @@ enum WeaponTypes
 
 struct Entity -> abstract
 {
+	@NoPrint
 	entityID : string;
 	entityType : EntityType;
 }

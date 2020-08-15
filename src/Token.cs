@@ -126,6 +126,31 @@ namespace DataKeep.Tokens
             return result;
         }
 
+        public static string[] ConvertToArray(string s)
+        {
+            ArrayList result = new ArrayList();
+            string current = "";
+
+            foreach (char c in s)
+            {
+                if (c.Equals(' '))
+                    if (!(current == "" || current == " "))
+                    {
+                        result.Add(current);
+                        current = "";
+                    }
+
+                if (!c.Equals(' '))
+                    current += c;
+           
+            }
+
+            if (current != "")
+                result.Add(current);
+
+            return (string[])result.ToArray(typeof(string));
+        }
+
         public static bool IsEmpty(string s)
         {
             bool isEmpty = true;
@@ -135,16 +160,5 @@ namespace DataKeep.Tokens
         }
     }
 
-    /*
 
-
-    ArrayList result = new ArrayList();
-
-    bool add = false;
-            foreach(Token t in tokens)
-            {
-                if (t.type != LexerTypes.Space)
-                    add = true;
-                if (add)
-                    result.Add(t);*/
 }

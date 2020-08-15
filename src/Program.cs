@@ -14,10 +14,10 @@ namespace DataKeep
             {
                 Console.WriteLine("------------");
                 Token[] tss = Token.RemoveBeginWhiteSpace(ts);
+
                 foreach(Token t in tss)
-                {
                     Lexer.PrintToken(t);
-                }
+                
             }
 
             Parser parser = new Parser(lexer);
@@ -25,6 +25,7 @@ namespace DataKeep
             parser.ParserAllLines();
 
             parser.PrintAllData();
+            parser.PrintCompileSettings();
 
         }
     }
