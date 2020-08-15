@@ -1,36 +1,23 @@
-﻿#using (System, Brief, Brief.Components)
-#namespace Brief.DataKeep
-
-enum Types
+﻿@(NoBody)
+struct Entity
 {
-	Weather,
-	Water,
-	Sweather,
-	Wetter
+    name : string;
+    health : int;
+    @(NoPrint)
+    type : EntityType;
 }
 
-@IntValues, StringConversion
-enum WeaponTypes
-{
-	Gun, 
-	OtherGun,
-	NexwGun,
-	MarkV3
-}
-
-struct Entity -> abstract
-{
-	@NoPrint
-	entityID : string;
-	entityType : EntityType;
-}
-
-
-@Print
+@(Print)
 struct Player -> Entity
 {
-	transform : Transform;
-	spriteRenderer : SpriteRenderer;
-	hitpoints : int;
-	currentScore : int;
+    playerID : string;
+    playerName : string;
+    charachterStrength : int;
+}
+
+enum EntityType
+{
+    Player,
+    Zombie,
+    Alien
 }

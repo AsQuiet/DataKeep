@@ -1,5 +1,8 @@
 ﻿using System;
+
 using DataKeep.Tokens;
+using DataKeep.ParserTypes;
+
 namespace DataKeep
 {
     class Program
@@ -22,9 +25,9 @@ namespace DataKeep
             Parser parser = new Parser(lexer);
 
             parser.ParserAllLines();
+            parser.GiveStructInheritance();
             parser.PrintAllData();
             parser.PrintCompileSettings();
-
         }
     }
 }

@@ -1,0 +1,21 @@
+﻿struct<>
+struct %structname%
+{
+$<>%fieldtype% %fieldname%;
+$<DefaultInt>public %fieldtype% %fieldname% = 0;
+$<DefaultString>public %fieldtype% %fieldname% = "";
+$<DefaultFloat>public %fieldtype% %fieldname% = 0.0;
+$<DefaultChar>public %fieldtype% %fieldname% = '';
+$<DefaultDouble>public %fieldtype% %fieldname% = 0.0;
+%tags%
+}
+#end
+
+struct<Print>
+public static void Print(%structname% object)
+{
+Console.WriteLine("{");
+$</NoPrint>Console.WriteLine(object.%fieldname%);
+Console.WriteLine("}");
+}
+#end

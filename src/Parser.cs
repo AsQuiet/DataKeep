@@ -29,8 +29,8 @@ namespace DataKeep
         private Lexer lexer;
         private int currentLine = 0;
 
-        private ArrayList pStructs = new ArrayList();
-        private ArrayList pEnums = new ArrayList();
+        public ArrayList pStructs = new ArrayList();
+        public ArrayList pEnums = new ArrayList();
 
         private bool inStruct = false;
         private bool inEnum = false;
@@ -136,7 +136,7 @@ namespace DataKeep
 
                 if (hasInheritance) {
                     stop = Token.IndexOfType(GetCurrentLine(), TokenTypes.Inheritance);
-                    inheritance = Token.SmashTokens(Token.GetRange(GetCurrentLine(), stop + 1,GetCurrentLine().Length), "");
+                    inheritance = Token.SmashTokens(Token.RemoveBeginWhiteSpace(Token.GetRange(GetCurrentLine(), stop + 1, GetCurrentLine().Length)), "");
                 } else
                     stop = GetCurrentLine().Length;
 
@@ -144,7 +144,7 @@ namespace DataKeep
                
                 activeStruct.name = name;
                 activeStruct.inheritance = inheritance;
-                activeStruct.deco = decoratorBuffer;
+                activeStruct.decorators = GetDecorators();
                 structFieldBuffer = new ArrayList();
 
             }
@@ -166,7 +166,7 @@ namespace DataKeep
                 string name = Token.SmashTokens(Token.RemoveBeginWhiteSpace(Token.GetRange(GetCurrentLine(), start, end)), "");
 
                 activeEnum.name = name;
-                activeEnum.deco = decoratorBuffer;
+                activeEnum.decorators = GetDecorators();
                 enumEntryBuffer = new ArrayList();
 
             }
@@ -190,7 +190,7 @@ namespace DataKeep
                 PField field;
                 field.name = name;
                 field.type = type;
-                field.deco = decoratorBuffer;
+                field.decorators = GetDecorators();
 
                 if (inStruct)
                     structFieldBuffer.Add(field);
@@ -215,8 +215,9 @@ namespace DataKeep
             bool hasComma = Token.IncludesType(GetCurrentLine(), TokenTypes.Comma);
             TokenTypes[] includes = { TokenTypes.Comma, TokenTypes.Space, TokenTypes.Undefined };
             bool hasNothingElse = Token.TokensOnlyInclude(GetCurrentLine(), includes);
+            bool hasDeco = Token.IncludesType(GetCurrentLine(), TokenTypes.Decorator);
 
-            if ((hasNothingElse || hasComma) && GetCurrentLine().Length != 0)
+            if ((hasNothingElse || hasComma) && GetCurrentLine().Length != 0 && !hasDeco)
             {
                 Console.WriteLine("Detected an enum entry.");
                 string entry = "";
@@ -332,6 +333,60 @@ namespace DataKeep
             }
             result.Add(Token.RemoveBeginSpaces(currentArg));
             return (string[])result.ToArray(typeof(string));
+        }
+
+        private string[] GetDecorators()
+        {
+            string[] result = { "no decorators" };
+            if (decoratorBuffer == "")
+                return result;
+            return ExtractArguments(decoratorBuffer);
+        }
+
+        public void GiveStructInheritance()
+        {
+            ArrayList newStructs = new ArrayList();
+
+            for (int i = 0; i < pStructs.Count; i++)
+            {
+                PStruct currentStruct = (PStruct) pStructs[i];
+
+                if (!Token.IsEmpty(currentStruct.inheritance))
+                {
+                    Console.WriteLine("Looking for correct struct...");
+
+                    // NOTE: change removebeginwhitespace function at the inheritance detection if problems with finding.
+                    foreach(PStruct pStruct in pStructs)
+                    {
+                        Console.WriteLine("searching for match : " + pStruct.name + "; with " + currentStruct.inheritance);
+                        if (pStruct.name.Contains(currentStruct.inheritance))
+                        {
+                            ArrayList newField = new ArrayList();
+
+                            foreach (PField p in pStruct.pFields)
+                                newField.Add(p);
+                            foreach (PField p in currentStruct.pFields)
+                                newField.Add(p);
+
+                            //Console.WriteLine("New Fields :");
+                            //for (int y = 0; y< newField.Count; y++)
+                            //    Console.WriteLine(PField.ToString((PField)newField[y]));
+
+                            currentStruct.pFields = (PField[])newField.ToArray(typeof(PField));
+
+                        }
+                        
+                    }
+
+                }
+
+                newStructs.Add(currentStruct);
+
+            }
+
+            pStructs = newStructs;
+
+
         }
 
 

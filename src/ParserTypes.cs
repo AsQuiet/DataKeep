@@ -1,8 +1,6 @@
 ﻿using System;
 using DataKeep;
-
-
-
+using DataKeep.Tokens;
 namespace DataKeep.ParserTypes
 {
 
@@ -10,24 +8,25 @@ namespace DataKeep.ParserTypes
     {
         public string name;
         public string type;
-        public string deco;
+        public string[] decorators;
 
         public static string ToString(PField pf)
         {
-            return "PField("+pf.name+", "+pf.type+", "+pf.deco+")";
+            return "PField("+pf.name+", "+pf.type+", ("+Token.StringArrToString(ref pf.decorators, "-")+"))";
         }
+
     }
 
     struct PStruct
     {
         public string name;
         public PField[] pFields;
-        public string deco;
+        public string[] decorators;
         public string inheritance;
 
         public static string ToString(PStruct ps)
         {
-            string s = "PStruct(" + ps.name + ", " + ps.deco + ", " + ps.inheritance + ", with fields: ";
+            string s = "PStruct(" + ps.name + ", (" + Token.StringArrToString(ref ps.decorators, "-") + "), " + ps.inheritance + ", with fields: ";
 
             foreach (PField pf in ps.pFields)
                 s += "\n   " + PField.ToString(pf);
@@ -39,12 +38,12 @@ namespace DataKeep.ParserTypes
     struct PEnum
     {
         public string name;
-        public string deco;
+        public string[] decorators;
         public string[] entries;
            
         public static string ToString(PEnum pe)
         {
-            string s = "PEnum(" + pe.name + ", " + pe.deco + ", with entries: ";
+            string s = "PEnum(" + pe.name + ", (" + Token.StringArrToString(ref pe.decorators, "-") + "), with entries: ";
             foreach (string entry in pe.entries)
                 s += "\n   " + entry;
             return s + "\n)";

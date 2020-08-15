@@ -120,12 +120,11 @@ namespace DataKeep.Tokens
              
             foreach(Token t in tokens)
             {
+
+                if (!hasFoundCharacter)
+                    hasFoundCharacter = !Token.IsEmpty(t.value);
                 if (hasFoundCharacter)
                     result.Add(t);
-                else
-                {
-                    hasFoundCharacter = !Token.IsEmpty(t.value);
-                }
                 
             }
 
@@ -181,6 +180,25 @@ namespace DataKeep.Tokens
             foreach (char c in s)
                 isEmpty = isEmpty && (c.Equals(" ") || c.Equals(""));
             return isEmpty;
+        }
+
+        public static void PrintStringArr(ref string[] strings)
+        {
+            foreach (string s in strings)
+                Console.WriteLine(s);
+        }
+
+        public static string StringArrToString(ref string[] strings, string sep)
+        {
+            string result = "";
+
+            for (int i = 0; i < strings.Length; i++)
+            {
+                result += strings[i];
+                if (i + 1 != strings.Length)
+                    result += sep;
+            }
+            return result;
         }
     }
 
