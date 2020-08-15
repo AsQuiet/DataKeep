@@ -1,11 +1,18 @@
 ﻿using System;
 using System.Collections;
-
+using System.ComponentModel.DataAnnotations;
 using DataKeep.ParserTypes;
 using DataKeep.Tokens;
 
 namespace DataKeep
 {
+
+    struct CompileSettings
+    {
+        public string namespaceName { get; set; }
+        public string[] usingNames;
+        public string outputFileName;
+    }
 
     class Parser
     {
@@ -16,20 +23,36 @@ namespace DataKeep
         private ArrayList pStructs = new ArrayList();
         private ArrayList pEnums = new ArrayList();
 
-        private Token[] decoratorTokens;
-
         private bool inStruct = false;
         private bool inEnum = false;
 
         private PStruct activeStruct;
+        private PEnum activeEnum;
+        private ArrayList enumEntryBuffer;
         private ArrayList structFieldBuffer;
 
         private string decoratorBuffer = "";
+
+        public CompileSettings compileSettings;
 
         public Parser(Lexer lexer)
         {
             this.lexer = lexer;
 
+            compileSettings.namespaceName = "DataKeep.Output";
+            compileSettings.outputFileName = "DataKeepOutput.cs";
+            string[] temp = { "System" };
+            compileSettings.usingNames = temp;
+
+        }
+
+        public void PrintAllData()
+        {
+            Console.WriteLine("\nWriting All The Data.");
+            foreach (PStruct ps in pStructs)
+                Console.WriteLine(PStruct.ToString(ps));
+            foreach (PEnum pe in pEnums)
+                Console.WriteLine(PEnum.ToString(pe));
         }
 
         private Token[] GetCurrentLine()
@@ -37,21 +60,35 @@ namespace DataKeep
             return lexer.fileTokens[currentLine];
         }
 
+        public void ParserAllLines()
+        {
+            Console.WriteLine("parsing all lines");
+            while (true)
+            {
+                if (currentLine >= lexer.fileTokens.Length)
+                    break;
+
+                if (!DetectCommand())
+                    ParseCurrentLine();
+                else
+                    currentLine += 1;
+                Console.WriteLine("currentlineparseDone[in struct : " + inStruct + "; inEnum : " + inEnum + "; current deco: " + decoratorBuffer + "]");
+            }
+            Console.WriteLine("parsing is done");
+        }
+
         public void ParseCurrentLine()
         {
-
             DetectStruct();
             DetectEnum();
             DetectField();
             DetectEnumEntry();
             DetectEndOfScope();
-
+            
             if (decoratorBuffer != "")
                 decoratorBuffer = "";
 
             DetectDecorator();
-
-            Console.WriteLine(".. in struct :" + inStruct + " inEnum :" + inEnum + " current deco " + decoratorBuffer);
             currentLine += 1;
         }
 
@@ -99,6 +136,17 @@ namespace DataKeep
             if (hasEnum && noSemiColon)
             {
                 Console.WriteLine("Detected an enum");
+                inEnum = true;
+
+                int start = Token.IndexOfType(GetCurrentLine(), LexerTypes.Enum) + 1;
+                int end = GetCurrentLine().Length;
+                string name = Token.SmashTokens(Token.RemoveBeginWhiteSpace(Token.GetRange(GetCurrentLine(), start, end)), "");
+                Console.WriteLine("name of enum is: " + name);
+
+                activeEnum.name = name;
+                activeEnum.deco = decoratorBuffer;
+                enumEntryBuffer = new ArrayList();
+
             }
 
         }
@@ -112,7 +160,7 @@ namespace DataKeep
             {
 
                 int typeDeclIndex = Token.IndexOfType(GetCurrentLine(), LexerTypes.TypeDecl);
-                string name = Token.SmashTokens(Token.GetRange(GetCurrentLine(), 0, typeDeclIndex), "");
+                string name = Token.SmashTokens(Token.StartWithChar(Token.GetRange(GetCurrentLine(), 0, typeDeclIndex)), "");
 
                 int semiColonIndex = Token.IndexOfType(GetCurrentLine(), LexerTypes.SemiColon);
                 string type = Token.SmashTokens(Token.RemoveBeginWhiteSpace(Token.GetRange(GetCurrentLine(), typeDeclIndex + 1, semiColonIndex)), "");
@@ -146,9 +194,17 @@ namespace DataKeep
             LexerTypes[] includes = { LexerTypes.Comma, LexerTypes.Space, LexerTypes.Undefined };
             bool hasNothingElse = Token.TokensOnlyInclude(GetCurrentLine(), includes);
 
-            if (hasNothingElse || hasComma)
+            if ((hasNothingElse || hasComma) && GetCurrentLine().Length != 0)
             {
                 Console.WriteLine("Detected an enum entry.");
+                string entry = "";
+
+                int stop = GetCurrentLine().Length;
+                if (hasComma)
+                    stop = Token.IndexOfType(GetCurrentLine(), LexerTypes.Comma);
+
+                entry = Token.SmashTokens(Token.StartWithChar(Token.GetRange(GetCurrentLine(), 0, stop)), "");
+                enumEntryBuffer.Add(entry);
             }
         }
 
@@ -162,18 +218,77 @@ namespace DataKeep
 
                 if (inStruct)
                 {
-                    Console.WriteLine("ending struct scope");
-                    activeStruct.pFields = (PField[])structFieldBuffer.ToArray(typeof(PField));
+                    activeStruct.pFields = (PField[])structFieldBuffer.ToArray(typeof(PField)); // adding the fields
+                    pStructs.Add(activeStruct);
+                }
 
-                    Console.WriteLine(PStruct.ToString(activeStruct));
+                if (inEnum)
+                {
+                    activeEnum.entries = (string[])enumEntryBuffer.ToArray(typeof(string));
+                    pEnums.Add(activeEnum);
                 }
 
                 inEnum = false;
                 inStruct = false;
 
-                
+            }
+        }
+
+        private bool DetectCommand()
+        {
+            bool hasCommandSymbol = Token.IncludesType(GetCurrentLine(), LexerTypes.Preprocess);
+
+            if (hasCommandSymbol)
+            {
+                string command = "";
+
+                int start = Token.IndexOfType(GetCurrentLine(), LexerTypes.Preprocess);
+                int end = GetCurrentLine().Length;
+                command = Token.SmashTokens(Token.RemoveBeginWhiteSpace(Token.GetRange(GetCurrentLine(), start, end)), "");
+                HandleCommand(command);
+            }
+
+            return hasCommandSymbol;
+
+        }
+
+        private void HandleCommand(string command)
+        {
+            Console.WriteLine("handling command : " + command);
+
+            string[] arguments = Parser.ExtractArguments(command);
+            foreach (string s in arguments)
+                Console.WriteLine(s);
+        }
+
+
+        public static string[] ExtractArguments(string s)
+        {
+            ArrayList result = new ArrayList();
+
+            string currentArg = "";
+            bool inArg = false;
+
+            for (int i = 0; i < s.Length; i++)
+            {
+                if (s[i].Equals(')') && inArg)
+                    inArg = false;
+
+                if (inArg && !s[i].Equals(','))
+                    currentArg += s[i];
+
+                if (inArg && s[i].Equals(','))
+                {
+                    result.Add(Token.RemoveBeginSpaces(currentArg));
+                    currentArg = "";
+                }
+
+                if (s[i].Equals('(') && !inArg)
+                    inArg = true;
 
             }
+            result.Add(Token.RemoveBeginSpaces(currentArg));
+            return (string[])result.ToArray(typeof(string));
         }
 
 

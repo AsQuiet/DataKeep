@@ -1,6 +1,7 @@
 ﻿using System;
 using DataKeep;
 using System.Collections;
+using System.Threading.Channels;
 
 namespace DataKeep.Tokens
 {
@@ -85,8 +86,65 @@ namespace DataKeep.Tokens
             return -1;
         }
 
+        public static Token[] StartWithChar(Token[] tokens)
+        {
+            ArrayList result = new ArrayList();
+            bool hasFoundCharacter = false;
+             
+            foreach(Token t in tokens)
+            {
+                if (hasFoundCharacter)
+                    result.Add(t);
+                else
+                {
+                    /*bool isEmpty = true;
+                    foreach (char c in t.value)
+                        isEmpty = isEmpty && (c.Equals(" ") || c.Equals(""));*/
+                    hasFoundCharacter = !Token.IsEmpty(t.value);
+                }
+                
+            }
+
+            return (Token[])result.ToArray(typeof(Token));
+        }
+            
+        // same this as RemoveBeginWhiteSpace, but for strings...
+        public static string RemoveBeginSpaces(string s)
+        {
+            string result = "";
+
+            bool add = false;
+
+            foreach(char c in s)
+            {
+                if (!c.Equals(' ') && !add)
+                    add = true;
+                if (add)
+                    result += c;
+            }
+
+            return result;
+        }
+
+        public static bool IsEmpty(string s)
+        {
+            bool isEmpty = true;
+            foreach (char c in s)
+                isEmpty = isEmpty && (c.Equals(" ") || c.Equals(""));
+            return isEmpty;
+        }
     }
 
+    /*
 
-    
+
+    ArrayList result = new ArrayList();
+
+    bool add = false;
+            foreach(Token t in tokens)
+            {
+                if (t.type != LexerTypes.Space)
+                    add = true;
+                if (add)
+                    result.Add(t);*/
 }

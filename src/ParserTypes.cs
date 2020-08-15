@@ -14,7 +14,7 @@ namespace DataKeep.ParserTypes
 
         public static string ToString(PField pf)
         {
-            return "PField : " + pf.name + ", type : " + pf.type + ", deco : " + pf.deco; 
+            return "PField("+pf.name+", "+pf.type+", "+pf.deco+")";
         }
     }
 
@@ -27,12 +27,12 @@ namespace DataKeep.ParserTypes
 
         public static string ToString(PStruct ps)
         {
-            string s = "PStruct : " + ps.name + ", inher. : " + ps.inheritance + ", deco : " + ps.deco + " with fields : ";
+            string s = "PStruct(" + ps.name + ", " + ps.deco + ", " + ps.inheritance + ", with fields: ";
 
             foreach (PField pf in ps.pFields)
                 s += "\n   " + PField.ToString(pf);
 
-            return s;
+            return s + "\n)";
         }
     }
 
@@ -41,6 +41,15 @@ namespace DataKeep.ParserTypes
         public string name;
         public string deco;
         public string[] entries;
+           
+        public static string ToString(PEnum pe)
+        {
+            string s = "PEnum(" + pe.name + ", " + pe.deco + ", with entries: ";
+            foreach (string entry in pe.entries)
+                s += "\n   " + entry;
+            return s + "\n)";
+        }
+
     }
 
 }

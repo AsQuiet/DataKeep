@@ -1,8 +1,35 @@
-﻿@Print
+﻿#using (System, Brief, Brief.Components)
+#namespace Brief.DataKeep
+
+enum Types
+{
+	Weather,
+	Water,
+	Sweather,
+	Wetter
+}
+
+@IntValues, StringConversion
+enum WeaponTypes
+{
+	Gun, 
+	OtherGun,
+	NexwGun,
+	MarkV3
+}
+
 struct Entity -> abstract
 {
-    name : string;
-    @NoPrint
-    last : string;
-    age : int;
+	entityID : string;
+	entityType : EntityType;
+}
+
+
+@Print
+struct Player -> Entity
+{
+	transform : Transform;
+	spriteRenderer : SpriteRenderer;
+	hitpoints : int;
+	currentScore : int;
 }
