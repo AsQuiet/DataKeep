@@ -1,49 +1,43 @@
-
-using System;
-namespace DataKeep.Output
+namespace DataKeep.Test
 {
 
+    struct FieldTemplate
+    {
+        public string template;
+        public string[] allowedTags;
+        public string[] deniedTags;
+        public string secureTin;
+
+        public static string ToString(FieldTemplate struct_)
+        {
+            string s = "(";
+
+            s += "\n" + struct_.template;
+            foreach (string e in struct_.allowedTags) { s += e; }
+            foreach (string e in struct_.deniedTags) { s += e; }
 
 
-enum EntityType
-{
-Player ,
-Zombie ,
-Undead 
+            return s + ")";
+        }
+    }
+    struct StructTemplate
+    {
+        public string template;
+        public string[] allowedTags;
+        public string[] deniedTagsReWorkedVersion2;
+        public FieldTemplate[] fields;
 
-}
+        public static string ToString(StructTemplate struct_)
+        {
+            string s = "(";
 
-struct MainEntity
-{
-public string entityID ;
-public EntityType entityType ;
+            s += "\n" + struct_.template;
+            foreach (string e in struct_.allowedTags) { s += e; }
+            foreach (string e in struct_.deniedTagsReWorkedVersion2) { s += e; }
+            foreach (FieldTemplate e in struct_.fields) { s += FieldTemplate.ToString(e); }
 
-}
-
-struct Player 
-{
-public string entityID ;
-public EntityType entityType ;
-public int health ;
-public int damage ;
-public double someFloatValue ;
-
-public static string ToString(Player  struct_)
-{	
-string result = "(";
-result += "\n" + struct_.entityID ;
-result += "\n" + struct_.entityType ;
-result += "\n" + struct_.health ;
-result += "\n" + struct_.damage ;
-result += "\n" + struct_.someFloatValue ;
-return result + ")";
-}
-public static void Print(Player  struct_)
-{
-Console.WriteLine(ToString(struct_));
-}
-}
-
-
+            return s + ")";
+        }
+    }
 
 }

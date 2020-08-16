@@ -52,7 +52,7 @@ namespace DataKeep
 
             master = master.Replace("%tags%", code);
 
-            finalCode += master + "\n";
+            finalCode += master;
         }
 
         public StructTemplate[] FindCorrectStructTemplates(PStruct struct_, StructTemplate[] templates)
@@ -124,12 +124,15 @@ namespace DataKeep
                         commandCount = 1;
                         result += "here%";
                     }
-                        
+
                     if (commandCount == 0)
-                        result += "\n" + current;
+                        if (!current.Contains("%tags%"))
+                            result += "\n" + current;
+                        else
+                            result += current;
                 }
 
-                //Console.WriteLine("result i s : " + result);
+                Console.WriteLine("result i s : " + result);
 
             }
             
@@ -148,8 +151,8 @@ namespace DataKeep
                     //Console.WriteLine("code is : \n" + templateCode);
                     fieldCode += templateCode;
 
-                    if (i + 1 != struct_.fields.Length)
-                        fieldCode += "\n";
+                    //if (i + 1 != struct_.fields.Length+5)
+                    fieldCode += "\n";
                 }
             }
 
@@ -186,6 +189,8 @@ namespace DataKeep
             return templates[0];
         }
     }
+
+
 
 }
 /*

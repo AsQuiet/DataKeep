@@ -1,42 +1,33 @@
 ﻿
-@(Include, NoBody)
-struct IncludeStruct
-{
-}
 
-@(Enum)
-struct EntityType
+@(ToString)
+struct FieldTemplate
 {
-Player : string;
-Zombie : string;
-@(End)
-Undead : string;
-}
 
-struct MainEntity
-{
-@(DefaultString);
-entityID : string;
+	template : string;
+@(IsArray)
+	allowedTags : string;
+@(IsArray)
+	deniedTags : string;
+@(NoPrint)
+	secureTin: string;
 
-entityType : EntityType;
 }
 
 
-@(Print, ToString)
-struct Player -> MainEntity
+@(ToString)
+struct StructTemplate
 {
-@(DefaultInt)
-health : int;
+	
+	template : string;
+@(IsArray)
+	allowedTags : string;
+@(IsArray)
+	deniedTagsReWorkedVersion2 : string;
+@(isArrayToString)
+	fields : FieldTemplate;
 
-@(DefaultInt)	
-damage : int;
-
-@(DefaultDouble)
-someFloatValue : double;
 }
 
 
-@(EndFile, NoBody)
-struct IncludeStruct
-{
-}
+

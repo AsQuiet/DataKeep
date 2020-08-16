@@ -1,9 +1,13 @@
-﻿::define string stringS
+﻿
 
-::defstruct default /NoBody /Enum
+::defstruct default 
 struct %structname%
 {
 ::startfields
+::$ isArrayToString
+public %fieldtype%[] %fieldname%;
+::$ IsArray
+public %fieldtype%[] %fieldname%;
 ::$ default
 public %fieldtype% %fieldname%;
 ::endfields
@@ -13,54 +17,19 @@ public %fieldtype% %fieldname%;
 
 ::defstruct ToString
 public static string ToString(%structname% struct_)
-{	
-string result = "(";
-::startfields
-::$ default /NoPrint
-result += "\n" + struct_.%fieldname%;
-::endfields
-return result + ")";
-}
-::endstruct
-
-::defstruct Print
-public static void Print(%structname% struct_)
 {
-::$ default
+string s = "(";
 
-Console.WriteLine(ToString(struct_));
-}
-::endstruct
-
-::defstruct Enum
-enum %structname%
-{
 ::startfields
-::$ End
-%fieldname%
+::$ NoPrint
+
+::$ isArrayToString
+foreach(%fieldtype% e in struct_.%fieldname%) {s += %fieldtype%.ToString(e);}
+::$ IsArray
+foreach(%fieldtype% e in struct_.%fieldname%) {s += e;}
 ::$ default
-%fieldname%,
+s += "\n" + struct_.%fieldname%;
 ::endfields
-%tags%
-}
-::endstruct
-
-::defstruct Include
-using System;
-namespace DataKeep.Output
-{
-::startfields
-::$ default
-
-::endfields
-%tags%
-::endstruct
-
-::defstruct EndFile
-::startfields
-::$ default
-
-::endfields
-%tags%
+return s + ")";
 }
 ::endstruct
