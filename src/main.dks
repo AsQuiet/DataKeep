@@ -1,18 +1,15 @@
-﻿::defstruct default /NoBody
+﻿::defenum default
+enum %enumname%
+::& default /end
+%entryname%,
+::& end
+%entryname%
+::endenum
+
+::defstruct default
 struct %structname%
 {
 ::$ default
 public %fieldtype% %fieldname%;
-}
-%tags%
-::endstruct
-
-::defstruct Print
-public static void Print(%structname% data)
-{
-Console.WriteLine("{");
-::$ default
-Console.WriteLine(data.%fieldname%);
-Console.WriteLine("}");
 }
 ::endstruct
