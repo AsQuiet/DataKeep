@@ -36,10 +36,14 @@ namespace DataKeep
             syntaxParser.PrintAllData();
 
             Linker linker = new Linker(syntaxParser, parser);
-
+            linker.Convert();
+            linker.OutputToFile("output.cs");
+            
 
 
 
         }
     }
+
+  
 }

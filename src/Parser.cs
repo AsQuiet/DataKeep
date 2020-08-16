@@ -184,7 +184,7 @@ namespace DataKeep
             {
 
                 int typeDeclIndex = Token.IndexOfType(GetCurrentLine(), TokenTypes.TypeDecl);
-                string name = Token.SmashTokens(Token.StartWithChar(Token.GetRange(GetCurrentLine(), 0, typeDeclIndex)), "");
+                string name = Token.SmashTokens(Token.RemoveBeginWhiteSpace(Token.GetRange(GetCurrentLine(), 0, typeDeclIndex)), "");
 
                 int semiColonIndex = Token.IndexOfType(GetCurrentLine(), TokenTypes.SemiColon);
                 string type = Token.SmashTokens(Token.RemoveBeginWhiteSpace(Token.GetRange(GetCurrentLine(), typeDeclIndex + 1, semiColonIndex)), "");
@@ -252,6 +252,9 @@ namespace DataKeep
                     activeEnum.entries = (string[])enumEntryBuffer.ToArray(typeof(string));
                     pEnums.Add(activeEnum);
                 }
+
+                structFieldBuffer = new ArrayList();
+                enumEntryBuffer = new ArrayList();
 
                 inEnum = false;
                 inStruct = false;
@@ -403,6 +406,8 @@ namespace DataKeep
 
 
     }
+
+
 
 
 }

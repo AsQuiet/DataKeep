@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections;
-
+using System.IO;
 using DataKeep.ParserTypes;
 using DataKeep.Syntax;
 
@@ -39,30 +39,44 @@ namespace DataKeep
             core.structTemplates = (StructTemplate[])sp.structTemplates.ToArray(typeof(StructTemplate));
             core.enumTemplates = (EnumTemplate[])sp.enumTemplates.ToArray(typeof(EnumTemplate));
 
-            ConvertStruct(core.structs[2]);
+            
+        }
+
+        public void Convert()
+        {
+            Console.WriteLine("converting all of the structs");
+            foreach(PStruct st in core.structs)
+                ConvertStruct(st);
+        }
+
+        public void OutputToFile(string path)
+        {
+            File.WriteAllText(path, core.finalCode);
         }
 
         public void ConvertStruct(PStruct struct_)
         {
             StructTemplate[] templates = FindCorrectStructBlueprints(struct_, core.structTemplates);
 
-            Console.WriteLine("result is :");
+            /*Console.WriteLine("result is :");
             foreach (StructTemplate s in templates)
-                Console.WriteLine(StructTemplate.ToString(s));
+                Console.WriteLine(StructTemplate.ToString(s));*/
 
-            StructTemplate master = FindMasterStructTemplate(templates);
-            //Console.WriteLine("Master template is : \n" + StructTemplate.ToString(master));
-
-            string masterCode = FillStructTemplate(struct_, master);
-            Console.WriteLine(masterCode);
-
-
-            string coed = "";
-            foreach (StructTemplate st in templates)
+            string code = "";
+            string master = "";
+            foreach(StructTemplate st in templates)
             {
-                coed += FillStructTemplate(struct_, st) + "\n"; 
+                string templateCode = FillStructTemplate(struct_, st);
+
+                if (templateCode.Contains("%tags%"))
+                    master += templateCode;
+                else
+                    code += templateCode;
             }
-            Console.WriteLine("final final result is : \n" + coed);
+
+            master = master.Replace("%tags%", code);
+
+            core.finalCode += master + "\n";
         }
 
         public StructTemplate[] FindCorrectStructBlueprints(PStruct struct_, StructTemplate[] templates)
@@ -209,9 +223,25 @@ namespace DataKeep
             return templates[0];
         }
 
+        enum EntityType
+        {
+            Player,
+            Zombie,
+            Undead
+
+        }
+
+        struct Entity
+        {
+            public string entityID;
+            public EntityType entityType;
+
+        }
+
+       
+
 
     }
-
 
 }
 /*

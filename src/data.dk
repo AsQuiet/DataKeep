@@ -1,27 +1,42 @@
-﻿@(Print, Init)
-struct Player
+﻿
+@(Include, NoBody)
+struct IncludeStruct
 {
-    @(DefaultInt)
-    age : int;
-    @(otherTag, DefaultString)
-    name : string;
-    @(detail, DefaultString)
-    last : string;
 }
 
 @(Enum)
-struct PlayerStates
+struct EntityType
 {
-
-    Alive : string;
-    Dead : string;
-    @(End)
-    Undead : string;
+Player : string;
+Zombie : string;
+@(End)
+Undead : string;
 }
 
-@(Zombie)
-struct Zombie
+struct MainEntity
 {
-    name : string;
-    last : string;
+@(DefaultString);
+entityID : string;
+
+entityType : EntityType;
+}
+
+
+@(Print, ToString)
+struct Player -> MainEntity
+{
+@(DefaultInt)
+health : int;
+
+@(DefaultInt)	
+damage : int;
+
+@(DefaultDouble)
+someFloatValue : double;
+}
+
+
+@(EndFile, NoBody)
+struct IncludeStruct
+{
 }

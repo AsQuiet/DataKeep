@@ -1,4 +1,6 @@
-﻿::defstruct default /Enum /Zombie
+﻿::define string stringS
+
+::defstruct default /NoBody /Enum
 struct %structname%
 {
 ::startfields
@@ -9,15 +11,24 @@ public %fieldtype% %fieldname%;
 }
 ::endstruct
 
+::defstruct ToString
+public static string ToString(%structname% struct_)
+{	
+string result = "(";
+::startfields
+::$ default /NoPrint
+result += "\n" + struct_.%fieldname%;
+::endfields
+return result + ")";
+}
+::endstruct
+
 ::defstruct Print
 public static void Print(%structname% struct_)
 {
-::startfields
-::$ detail
-Console.WriteLine("%fieldname% just so happens to be : " + struct_.fieldname);
 ::$ default
-Console.WriteLine(struct_.%fieldname%);
-::endfields
+
+Console.WriteLine(ToString(struct_));
 }
 ::endstruct
 
@@ -30,30 +41,25 @@ enum %structname%
 ::$ default
 %fieldname%,
 ::endfields
+%tags%
 }
 ::endstruct
 
-::defstruct Init
-public static %structname% Default()
+::defstruct Include
+using System;
+namespace DataKeep.Output
 {
-%structname% struct_;
 ::startfields
-::$ DefaultString
-struct_.%fieldname% = "";
 ::$ default
-struct_.%fieldname% = 0;
+
 ::endfields
-return struct_;
-}
+%tags%
 ::endstruct
 
-
-::defstruct Zombie
-struct %structname%
-{
+::defstruct EndFile
 ::startfields
-::$
-public %fieldtype% Zombie%fieldname%;
+::$ default
+
 ::endfields
 %tags%
 }
