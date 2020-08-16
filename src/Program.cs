@@ -32,7 +32,8 @@ namespace DataKeep
 
 
             SyntaxParser syntaxParser = new SyntaxParser(new FileHandler("main.dks"));
-            syntaxParser.ParseCurrentLine();
+            syntaxParser.ParseAllLines();
+            syntaxParser.PrintAllData();
 
         }
     }

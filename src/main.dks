@@ -1,9 +1,18 @@
-﻿::defstruct default /NoBody 
-struct %name%
+﻿::defstruct default /NoBody
+struct %structname%
 {
 ::$ default
 public %fieldtype% %fieldname%;
-::$ DefaultInt
-public %fieldtype% %fieldname% = 0; 
+}
+%tags%
+::endstruct
+
+::defstruct Print
+public static void Print(%structname% data)
+{
+Console.WriteLine("{");
+::$ default
+Console.WriteLine(data.%fieldname%);
+Console.WriteLine("}");
 }
 ::endstruct

@@ -1,21 +1,18 @@
-﻿struct<>
+﻿::defstruct default /NoBody
 struct %structname%
 {
-$<>%fieldtype% %fieldname%;
-$<DefaultInt>public %fieldtype% %fieldname% = 0;
-$<DefaultString>public %fieldtype% %fieldname% = "";
-$<DefaultFloat>public %fieldtype% %fieldname% = 0.0;
-$<DefaultChar>public %fieldtype% %fieldname% = '';
-$<DefaultDouble>public %fieldtype% %fieldname% = 0.0;
-%tags%
+::$ default
+public %fieldtype% %fieldname%;
 }
-#end
+%tags%
+::endstruct
 
-struct<Print>
-public static void Print(%structname% object)
+::defstruct Print
+public static void Print(%structname% data)
 {
 Console.WriteLine("{");
-$</NoPrint>Console.WriteLine(object.%fieldname%);
+::$ default
+Console.WriteLine(data.%fieldname%);
 Console.WriteLine("}");
 }
-#end
+::endstruct
