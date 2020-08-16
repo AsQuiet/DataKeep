@@ -339,10 +339,19 @@ namespace DataKeep
 
         private string[] GetDecorators()
         {
-            string[] result = { "no decorators" };
+            string[] result = { "default" };
             if (decoratorBuffer == "")
                 return result;
-            return ExtractArguments(decoratorBuffer);
+
+            result = ExtractArguments(decoratorBuffer);
+            // adding default tag to list
+            ArrayList res = new ArrayList();
+            
+            foreach (string e in result)
+                res.Add(e);
+
+            res.Add("default");
+            return (string[]) res.ToArray(typeof(string));
         }
 
         public void GiveStructInheritance()

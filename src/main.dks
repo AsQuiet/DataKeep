@@ -1,15 +1,60 @@
-﻿::defenum default
-enum %enumname%
-::& default /end
-%entryname%,
-::& end
-%entryname%
-::endenum
-
-::defstruct default
+﻿::defstruct default /Enum /Zombie
 struct %structname%
 {
+::startfields
 ::$ default
 public %fieldtype% %fieldname%;
+::endfields
+%tags%
+}
+::endstruct
+
+::defstruct Print
+public static void Print(%structname% struct_)
+{
+::startfields
+::$ detail
+Console.WriteLine("%fieldname% just so happens to be : " + struct_.fieldname);
+::$ default
+Console.WriteLine(struct_.%fieldname%);
+::endfields
+}
+::endstruct
+
+::defstruct Enum
+enum %structname%
+{
+::startfields
+::$ End
+%fieldname%
+::$ default
+%fieldname%,
+::endfields
+}
+::endstruct
+
+::defstruct Init
+public static %structname% Default()
+{
+%structname% struct_;
+::startfields
+::$ DefaultString
+struct_.%fieldname% = "";
+::$ default
+struct_.%fieldname% = 0;
+::endfields
+return struct_;
+}
+::endstruct
+
+
+::defstruct Zombie
+struct %structname%
+{
+::startfields
+::$
+public %fieldtype% Zombie%fieldname%;
+::endfields
+%tags%
 }
 ::endstruct

@@ -1,23 +1,27 @@
-﻿@(NoBody)
-struct Entity
+﻿@(Print, Init)
+struct Player
+{
+    @(DefaultInt)
+    age : int;
+    @(otherTag, DefaultString)
+    name : string;
+    @(detail, DefaultString)
+    last : string;
+}
+
+@(Enum)
+struct PlayerStates
+{
+
+    Alive : string;
+    Dead : string;
+    @(End)
+    Undead : string;
+}
+
+@(Zombie)
+struct Zombie
 {
     name : string;
-    health : int;
-    @(NoPrint)
-    type : EntityType;
-}
-
-@(Print)
-struct Player -> Entity
-{
-    playerID : string;
-    playerName : string;
-    charachterStrength : int;
-}
-
-enum EntityType
-{
-    Player,
-    Zombie,
-    Alien
+    last : string;
 }

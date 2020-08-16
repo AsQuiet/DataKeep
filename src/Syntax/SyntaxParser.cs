@@ -25,8 +25,8 @@ namespace DataKeep.Syntax
         private bool inEntry = false;
 
         //final extracted data
-        private ArrayList structTemplates = new ArrayList();
-        private ArrayList enumTemplates = new ArrayList();
+        public ArrayList structTemplates = new ArrayList();
+        public ArrayList enumTemplates = new ArrayList();
 
         public SyntaxParser(FileHandler fh)
         {

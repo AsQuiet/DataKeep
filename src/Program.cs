@@ -35,6 +35,11 @@ namespace DataKeep
             syntaxParser.ParseAllLines();
             syntaxParser.PrintAllData();
 
+            Linker linker = new Linker(syntaxParser, parser);
+
+
+
+
         }
     }
 }
