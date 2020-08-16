@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-
 using DataKeep.Tokens;
 
 namespace DataKeep.Syntax
@@ -10,29 +9,23 @@ namespace DataKeep.Syntax
         FileHandler fileHandler;
         int currentLine = 0;
 
-        // buffers
-        private string fieldBuffer = "";        // structs & enums
-        private ArrayList blueprintLinesBuffer;
-        private ArrayList fieldTemplateBuffer;  //structs
-        private ArrayList entryBuffer;          //enums
+        // buffers      
+        private ArrayList templateLinesBuffer;  // stores all the lines of the struct (strings)
+        private ArrayList fieldTemplateBuffer;  // stores all the field structs of the struct (FieldTemplates)
 
         private StructTemplate structBuffer;
-        private EnumTemplate enumBuffer;
+        private string fieldBuffer = "";
 
         private bool inStruct = false;
         private bool inField = false;
-        private bool inEnum = false;
-        private bool inEntry = false;
 
         //final extracted data
         public ArrayList structTemplates = new ArrayList();
-        public ArrayList enumTemplates = new ArrayList();
 
         public SyntaxParser(FileHandler fh)
         {
             fileHandler = fh;
             fh.LoadFile();
-
         }
 
         public string GetCurrentLine()
@@ -48,21 +41,17 @@ namespace DataKeep.Syntax
                 if (currentLine >= fileHandler.fileLines.Length)
                     break;
 
-                AddBlueprintLine();
+                AddTemplateLine();
 
                 if (inField)
                     EndFieldCommand(GetCurrentLine());
-                if (inEntry)
-                    AddEnumEntryCommand(GetCurrentLine());
 
                 ParseCurrentLine();
                 currentLine++;
-
-                
             }
         }
 
-        public void ParseCurrentLine()
+        internal void ParseCurrentLine()
         {
             string[] command = Token.ConvertToArray(GetCurrentLine());
 
@@ -80,15 +69,6 @@ namespace DataKeep.Syntax
                     case "::$":
                         DefFieldCommand(GetCurrentLine());
                         break;
-                    case "::defenum":
-                        DefEnumCommand(command);
-                        break;
-                    case "::endenum":
-                        EndEnumCommand();
-                        break;
-                    case "::&":
-                        DefEntryCommand(GetCurrentLine());
-                        break;
                     default:
                         break;
 
@@ -99,19 +79,13 @@ namespace DataKeep.Syntax
 
         public void PrintAllData()
         {
-            StructTemplate[] sts = (StructTemplate[])structTemplates.ToArray(typeof(StructTemplate));
-            EnumTemplate[] ets = (EnumTemplate[])enumTemplates.ToArray(typeof(EnumTemplate));
+            StructTemplate[] sts = (StructTemplate[]) structTemplates.ToArray(typeof(StructTemplate));
 
             Console.WriteLine("Printing all the data..");
 
             foreach (StructTemplate st in sts)
                 Console.WriteLine(StructTemplate.ToString(st));
-
-            foreach (EnumTemplate et in ets)
-                Console.WriteLine(EnumTemplate.ToString(et));
         }
-        
-        // `detection functions`
 
         // struct detection
         public void DefStructCommand(string[] command)
@@ -121,30 +95,31 @@ namespace DataKeep.Syntax
             structBuffer.allowedTags = GetAllowed(ref tags);
             structBuffer.deniedTags = GetDenied(ref tags);
 
-            blueprintLinesBuffer = new ArrayList();
+            templateLinesBuffer = new ArrayList();      // resseting
             fieldTemplateBuffer = new ArrayList();
             inStruct = true;
+            
             Console.WriteLine("creating new struct buffer");
             
         }
 
-        public void AddBlueprintLine()
+        public void AddTemplateLine()
         {
-            if (inStruct || inEnum)
-                blueprintLinesBuffer.Add(GetCurrentLine());
+            if (inStruct)
+                templateLinesBuffer.Add(GetCurrentLine());
         }
 
         public void EndStructCommand()
         {
-            structBuffer.blueprint = (string[])blueprintLinesBuffer.ToArray(typeof(string));
-            structBuffer.fields = (FieldTemplate[])fieldTemplateBuffer.ToArray(typeof(FieldTemplate));
+            structBuffer.template = (string[]) templateLinesBuffer.ToArray(typeof(string));
+            structBuffer.fields = (FieldTemplate[]) fieldTemplateBuffer.ToArray(typeof(FieldTemplate));
 
             structTemplates.Add(structBuffer);
+            inStruct = false;
 
             Console.WriteLine("ending enw struct " + structBuffer.fields.Length);
-            inStruct = false;
+            
         }
-
 
         // field detection
         public void DefFieldCommand(string line)
@@ -165,70 +140,9 @@ namespace DataKeep.Syntax
             nField.deniedTags = GetDenied(ref tags);
 
             // adding blueprint
-            nField.blueprint = line;
-
+            nField.template = line;
             fieldTemplateBuffer.Add(nField);
 
-            inField = false;
-        }
-
-        // enum detection
-        public void DefEnumCommand(string[] command)
-        {
-            Console.WriteLine("adding a enum");
-
-            {   // extracting data
-                string[] tags = GetRange(ref command, 1, command.Length);
-                enumBuffer.allowedTags = GetAllowed(ref tags);
-                enumBuffer.deniedTags = GetDenied(ref tags);
-            }
-
-            {   // resseting lists etc
-                blueprintLinesBuffer = new ArrayList();     
-                entryBuffer = new ArrayList();
-            }
-
-            inEnum = true;
-
-        }
-
-        public void DefEntryCommand(string line)
-        {
-            fieldBuffer = line;
-            inEnum = true;
-            inStruct = false;
-            inEntry = true;
-            inField = false;
-        }
-
-        public void AddEnumEntryCommand(string line)
-        {
-            Console.WriteLine("adding an entry.");
-            EntryTemplate nEntry;
-
-            {
-                string[] arr = Token.ConvertToArray(fieldBuffer);
-                string[] tags = GetRange(ref arr, 1, arr.Length);
-                nEntry.allowedTags = GetAllowed(ref tags);
-                nEntry.deniedTags = GetDenied(ref tags);
-            }
-
-            nEntry.blueprint = line;
-
-            entryBuffer.Add(nEntry);
-            inEntry = false;
-        }
-
-        public void EndEnumCommand()
-        {
-            Console.WriteLine("ending the current enum");
-
-            enumBuffer.blueprint = (string[]) blueprintLinesBuffer.ToArray(typeof(string));
-            enumBuffer.entries = (EntryTemplate[]) entryBuffer.ToArray(typeof(EntryTemplate));
-
-            enumTemplates.Add(enumBuffer);
-
-            inEnum = false;
             inField = false;
         }
 

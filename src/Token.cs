@@ -3,7 +3,6 @@ using System.Collections;
 
 namespace DataKeep.Tokens
 {
-
     enum TokenTypes
     {
         Struct,
@@ -12,7 +11,7 @@ namespace DataKeep.Tokens
         TypeDecl,
         Preprocess,
         Undefined,
-        Decorator,
+        Tag,
         Space,
         SemiColon,
         OpenParen,

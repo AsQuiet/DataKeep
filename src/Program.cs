@@ -25,10 +25,9 @@ namespace DataKeep
 
             Parser parser = new Parser(lexer);
 
-            parser.ParserAllLines();
+            parser.ParseAllLines();
             parser.GiveStructInheritance();
             parser.PrintAllData();
-            parser.PrintCompileSettings();
 
 
             SyntaxParser syntaxParser = new SyntaxParser(new FileHandler("main.dks"));
@@ -37,7 +36,7 @@ namespace DataKeep
 
             Linker linker = new Linker(syntaxParser, parser);
             linker.Convert();
-            linker.OutputToFile("output.cs");
+            linker.OutputToFile("output.csbutnotcs");
             
 
 

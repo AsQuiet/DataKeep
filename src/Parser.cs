@@ -7,72 +7,32 @@ using DataKeep.Tokens;
 namespace DataKeep
 {
 
-    struct CompileSettings
-    {
-        public string namespaceName { get; set; }
-        public string[] usingNames;
-        public string outputFileName;
-
-        public static string ToString(CompileSettings cs)
-        {
-            string s = "CompileSettings(" + cs.namespaceName + ", " + cs.outputFileName + ", using : [";
-            foreach (string c in cs.usingNames)
-                s += c + ", ";
-            return s + "])";
-        }
-
-    }
-
     class Parser
     {
-
         private Lexer lexer;
         private int currentLine = 0;
 
-        public ArrayList pStructs = new ArrayList();
-        public ArrayList pEnums = new ArrayList();
+        public ArrayList structs = new ArrayList();
 
         private bool inStruct = false;
-        private bool inEnum = false;
 
         private PStruct activeStruct;
-        private PEnum activeEnum;
-        private ArrayList enumEntryBuffer;
-        private ArrayList structFieldBuffer;
+        private ArrayList fieldBuffer;
 
         private string decoratorBuffer = "";
-
-        public CompileSettings compileSettings;
 
         public Parser(Lexer lexer)
         {
             this.lexer = lexer;
-            SetCompileSettingsDefaults();
-
-        }
-
-        public void SetCompileSettingsDefaults()
-        {
-            compileSettings.namespaceName = "DataKeep.Output";
-            compileSettings.outputFileName = "DataKeepOutput.cs";
-            string[] temp = { "System" };
-            compileSettings.usingNames = temp;
         }
 
         public void PrintAllData()
         {
             Console.WriteLine("\nWriting All The Data.");
 
-            foreach (PStruct ps in pStructs)
+            foreach (PStruct ps in structs)
                 Console.WriteLine(PStruct.ToString(ps));
-
-            foreach (PEnum pe in pEnums)
-                Console.WriteLine(PEnum.ToString(pe));
-        }
-
-        public void PrintCompileSettings()
-        {
-            Console.WriteLine(CompileSettings.ToString(compileSettings));
+        
         }
 
         private Token[] GetCurrentLine()
@@ -80,7 +40,7 @@ namespace DataKeep
             return lexer.fileTokens[currentLine];
         }
 
-        public void ParserAllLines()
+        public void ParseAllLines()
         {
             Console.WriteLine("parsing all lines");
             while (true)
@@ -88,12 +48,7 @@ namespace DataKeep
                 if (currentLine >= lexer.fileTokens.Length)
                     break;
 
-                if (DetectCommand())
-                    currentLine++;
-                else
-                    ParseCurrentLine();
-
-                //Console.WriteLine("currentlineparseDone[in struct : " + inStruct + "; inEnum : " + inEnum + "; current deco: " + decoratorBuffer + "]");
+                ParseCurrentLine();
             }
             Console.WriteLine("parsing is done");
         }
@@ -101,21 +56,14 @@ namespace DataKeep
         public void ParseCurrentLine()
         {
             DetectStruct();
-            DetectEnum();
             DetectField();
-            DetectEnumEntry();
             DetectEndOfScope();
-
-            if (decoratorBuffer != "")
-                decoratorBuffer = "";
-
             DetectDecorator();
+
             currentLine += 1;
         }
 
-        //
-        //      DETECTION FUNCTIONS
-        //
+
         private void DetectStruct()
         {
             bool hasStruct = Token.IncludesType(GetCurrentLine(), TokenTypes.Struct);
@@ -128,7 +76,6 @@ namespace DataKeep
                 Console.WriteLine("Detected a struct");
                 inStruct = true;
 
-                string name = "";
                 string inheritance = "";
 
                 int start = Token.IndexOfType(GetCurrentLine(), TokenTypes.Struct) + 1;
@@ -137,39 +84,17 @@ namespace DataKeep
                 if (hasInheritance)
                 {
                     stop = Token.IndexOfType(GetCurrentLine(), TokenTypes.Inheritance);
-                    inheritance = Token.SmashTokens(Token.RemoveBeginWhiteSpace(Token.GetRange(GetCurrentLine(), stop + 1, GetCurrentLine().Length)), "");
+                    inheritance = Token.SmashTokens(Token.GetRange(GetCurrentLine(), stop + 1, GetCurrentLine().Length), "");
                 }
                 else
                     stop = GetCurrentLine().Length;
 
-                name = Token.SmashTokens(Token.RemoveBeginWhiteSpace(Token.GetRange(GetCurrentLine(), start, stop)), "");
+                string name = Token.SmashTokens(Token.GetRange(GetCurrentLine(), start, stop), "");
 
                 activeStruct.name = name;
                 activeStruct.inheritance = inheritance;
-                activeStruct.decorators = GetDecorators();
-                structFieldBuffer = new ArrayList();
-
-            }
-
-        }
-
-        private void DetectEnum()
-        {
-            bool hasEnum = Token.IncludesType(GetCurrentLine(), TokenTypes.Enum);
-            bool noSemiColon = !Token.IncludesType(GetCurrentLine(), TokenTypes.SemiColon);
-
-            if (hasEnum && noSemiColon)
-            {
-                Console.WriteLine("Detected an enum");
-                inEnum = true;
-
-                int start = Token.IndexOfType(GetCurrentLine(), TokenTypes.Enum) + 1;
-                int end = GetCurrentLine().Length;
-                string name = Token.SmashTokens(Token.RemoveBeginWhiteSpace(Token.GetRange(GetCurrentLine(), start, end)), "");
-
-                activeEnum.name = name;
-                activeEnum.decorators = GetDecorators();
-                enumEntryBuffer = new ArrayList();
+                activeStruct.tags = GetTags();
+                fieldBuffer = new ArrayList();        // reset fields
 
             }
 
@@ -184,134 +109,56 @@ namespace DataKeep
             {
 
                 int typeDeclIndex = Token.IndexOfType(GetCurrentLine(), TokenTypes.TypeDecl);
-                string name = Token.SmashTokens(Token.RemoveBeginWhiteSpace(Token.GetRange(GetCurrentLine(), 0, typeDeclIndex)), "");
+                string name = Token.SmashTokens(Token.GetRange(GetCurrentLine(), 0, typeDeclIndex), "");
 
                 int semiColonIndex = Token.IndexOfType(GetCurrentLine(), TokenTypes.SemiColon);
-                string type = Token.SmashTokens(Token.RemoveBeginWhiteSpace(Token.GetRange(GetCurrentLine(), typeDeclIndex + 1, semiColonIndex)), "");
+                string type = Token.SmashTokens(Token.GetRange(GetCurrentLine(), typeDeclIndex + 1, semiColonIndex), "");
 
                 PField field;
                 field.name = name;
                 field.type = type;
-                field.decorators = GetDecorators();
+                field.tags = GetTags();
 
                 if (inStruct)
-                    structFieldBuffer.Add(field);
+                    fieldBuffer.Add(field);
 
             }
         }
 
         private void DetectDecorator()
         {
-            bool hasDeco = Token.IncludesType(GetCurrentLine(), TokenTypes.Decorator);
+            if (decoratorBuffer != "")
+                decoratorBuffer = "";
+
+            bool hasDeco = Token.IncludesType(GetCurrentLine(), TokenTypes.Tag);
 
             if (hasDeco)
             {
-                string deco = Token.SmashTokens(Token.RemoveBeginWhiteSpace(Token.GetRange(GetCurrentLine(), 1, GetCurrentLine().Length)), "");
-                decoratorBuffer = deco;
-                Console.WriteLine("new deco : " + deco);
-            }
-        }
-
-        private void DetectEnumEntry()
-        {
-            bool hasComma = Token.IncludesType(GetCurrentLine(), TokenTypes.Comma);
-            TokenTypes[] includes = { TokenTypes.Comma, TokenTypes.Space, TokenTypes.Undefined };
-            bool hasNothingElse = Token.TokensOnlyInclude(GetCurrentLine(), includes);
-            bool hasDeco = Token.IncludesType(GetCurrentLine(), TokenTypes.Decorator);
-
-            if ((hasNothingElse || hasComma) && GetCurrentLine().Length != 0 && !hasDeco)
-            {
-                Console.WriteLine("Detected an enum entry.");
-                string entry = "";
-
-                int stop = GetCurrentLine().Length;
-                if (hasComma)
-                    stop = Token.IndexOfType(GetCurrentLine(), TokenTypes.Comma);
-
-                entry = Token.SmashTokens(Token.StartWithChar(Token.GetRange(GetCurrentLine(), 0, stop)), "");
-                enumEntryBuffer.Add(entry);
+                decoratorBuffer = Token.SmashTokens(Token.GetRange(GetCurrentLine(), 1, GetCurrentLine().Length), "");
+                Console.WriteLine("new deco : " + decoratorBuffer);
             }
         }
 
         private void DetectEndOfScope()
         {
             bool hasCloseCurly = Token.IncludesType(GetCurrentLine(), TokenTypes.CloseCurly);
-
+    
             if (hasCloseCurly)
             {
                 Console.WriteLine("detected end of scope");
 
                 if (inStruct)
                 {
-                    activeStruct.pFields = (PField[])structFieldBuffer.ToArray(typeof(PField)); // adding the fields
-                    pStructs.Add(activeStruct);
+                    Console.WriteLine("adding the struct");
+                    activeStruct.fields = (PField[])fieldBuffer.ToArray(typeof(PField)); // adding the fields
+                    structs.Add(activeStruct);
                 }
 
-                if (inEnum)
-                {
-                    activeEnum.entries = (string[])enumEntryBuffer.ToArray(typeof(string));
-                    pEnums.Add(activeEnum);
-                }
-
-                structFieldBuffer = new ArrayList();
-                enumEntryBuffer = new ArrayList();
-
-                inEnum = false;
                 inStruct = false;
-
             }
         }
 
-        private bool DetectCommand()
-        {
-            bool hasCommandSymbol = Token.IncludesType(GetCurrentLine(), TokenTypes.Preprocess);
-
-            if (hasCommandSymbol)
-            {
-                string command = "";
-
-                int start = Token.IndexOfType(GetCurrentLine(), TokenTypes.Preprocess);
-                int end = GetCurrentLine().Length;
-                command = Token.SmashTokens(Token.RemoveBeginWhiteSpace(Token.GetRange(GetCurrentLine(), start, end)), "");
-                HandleCommand(command);
-            }
-
-            return hasCommandSymbol;
-
-        }
-
-        //
-        //      COMMAND FUNCTIONS
-        //
-
-        private void HandleCommand(string command)
-        {
-            string[] cmds = Token.ConvertToArray(command);
-            switch (cmds[0])
-            {
-                case "#using":
-                    UsingCommand(command);
-                    break;
-                case "#namespace":
-                    NamespaceCommand(ref cmds);
-                    break;
-                default:
-                    break;
-            }
-
-        }
-
-        private void UsingCommand(string command)
-        {
-            compileSettings.usingNames = ExtractArguments(command);
-        }
-
-        private void NamespaceCommand(ref string[] command)
-        {
-            compileSettings.namespaceName = command[1];
-        }
-
-        public static string[] ExtractArguments(string s)
+        public static string[] ExtractArguments(string s, bool addDefault)
         {
             ArrayList result = new ArrayList();
 
@@ -337,56 +184,50 @@ namespace DataKeep
 
             }
             result.Add(Token.RemoveBeginSpaces(currentArg));
+
+            if (addDefault)
+                result.Add("default");
+
             return (string[])result.ToArray(typeof(string));
         }
 
-        private string[] GetDecorators()
+        private string[] GetTags()
         {
             string[] result = { "default" };
+
             if (decoratorBuffer == "")
                 return result;
 
-            result = ExtractArguments(decoratorBuffer);
-            // adding default tag to list
-            ArrayList res = new ArrayList();
-            
-            foreach (string e in result)
-                res.Add(e);
-
-            res.Add("default");
-            return (string[]) res.ToArray(typeof(string));
+            result = ExtractArguments(decoratorBuffer, true);
+            return result;
         }
 
         public void GiveStructInheritance()
         {
             ArrayList newStructs = new ArrayList();
 
-            for (int i = 0; i < pStructs.Count; i++)
+            for (int i = 0; i < structs.Count; i++)
             {
-                PStruct currentStruct = (PStruct)pStructs[i];
+                PStruct currentStruct = (PStruct)structs[i];
 
                 if (!Token.IsEmpty(currentStruct.inheritance))
                 {
                     Console.WriteLine("Looking for correct struct...");
 
                     // NOTE: change removebeginwhitespace function at the inheritance detection if problems with finding.
-                    foreach (PStruct pStruct in pStructs)
+                    foreach (PStruct pStruct in structs)
                     {
                         Console.WriteLine("searching for match : " + pStruct.name + "; with " + currentStruct.inheritance);
                         if (pStruct.name.Contains(currentStruct.inheritance))
                         {
                             ArrayList newField = new ArrayList();
 
-                            foreach (PField p in pStruct.pFields)
+                            foreach (PField p in pStruct.fields)
                                 newField.Add(p);
-                            foreach (PField p in currentStruct.pFields)
+                            foreach (PField p in currentStruct.fields)
                                 newField.Add(p);
 
-                            //Console.WriteLine("New Fields :");
-                            //for (int y = 0; y< newField.Count; y++)
-                            //    Console.WriteLine(PField.ToString((PField)newField[y]));
-
-                            currentStruct.pFields = (PField[])newField.ToArray(typeof(PField));
+                            currentStruct.fields = (PField[])newField.ToArray(typeof(PField));
 
                         }
 
@@ -398,7 +239,7 @@ namespace DataKeep
 
             }
 
-            pStructs = newStructs;
+            structs = newStructs;
 
 
         }

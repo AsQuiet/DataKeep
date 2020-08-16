@@ -7,63 +7,39 @@ using DataKeep.Syntax;
 namespace DataKeep
 {
 
-    struct LinkerData
-    {
-        public PStruct[] structs;
-        public PEnum[] enums;
-
-        public StructTemplate[] structTemplates;
-        public EnumTemplate[] enumTemplates;
-
-        public string[] structCode;
-        public string[] enumCode;
-
-        public string finalCode;
-    }
-
     class Linker
     {
+        public PStruct[] structs;
+        public StructTemplate[] structTemplates;
 
-        LinkerData core;
-
-        SyntaxParser sParser;
-        Parser parser;
+        public string finalCode;
 
         public Linker(SyntaxParser sp, Parser p)
         {
-            sParser = sp;
-            parser = p;
-
-            core.structs = (PStruct[])p.pStructs.ToArray(typeof(PStruct));
-            core.enums = (PEnum[])p.pEnums.ToArray(typeof(PEnum));
-            core.structTemplates = (StructTemplate[])sp.structTemplates.ToArray(typeof(StructTemplate));
-            core.enumTemplates = (EnumTemplate[])sp.enumTemplates.ToArray(typeof(EnumTemplate));
-
-            
+            structs = (PStruct[]) p.structs.ToArray(typeof(PStruct));
+            structTemplates = (StructTemplate[]) sp.structTemplates.ToArray(typeof(StructTemplate));
         }
 
         public void Convert()
         {
             Console.WriteLine("converting all of the structs");
-            foreach(PStruct st in core.structs)
+
+            foreach(PStruct st in structs)
                 ConvertStruct(st);
         }
 
         public void OutputToFile(string path)
         {
-            File.WriteAllText(path, core.finalCode);
+            File.WriteAllText(path, finalCode);
         }
 
         public void ConvertStruct(PStruct struct_)
         {
-            StructTemplate[] templates = FindCorrectStructBlueprints(struct_, core.structTemplates);
-
-            /*Console.WriteLine("result is :");
-            foreach (StructTemplate s in templates)
-                Console.WriteLine(StructTemplate.ToString(s));*/
+            StructTemplate[] templates = FindCorrectStructTemplates(struct_, structTemplates);
 
             string code = "";
             string master = "";
+
             foreach(StructTemplate st in templates)
             {
                 string templateCode = FillStructTemplate(struct_, st);
@@ -76,10 +52,10 @@ namespace DataKeep
 
             master = master.Replace("%tags%", code);
 
-            core.finalCode += master + "\n";
+            finalCode += master + "\n";
         }
 
-        public StructTemplate[] FindCorrectStructBlueprints(PStruct struct_, StructTemplate[] templates)
+        public StructTemplate[] FindCorrectStructTemplates(PStruct struct_, StructTemplate[] templates)
         {
             ArrayList result = new ArrayList();
 
@@ -90,7 +66,7 @@ namespace DataKeep
                 bool tagInAllowed = false;
                 bool tagInDenied = false;
 
-                foreach (string s in struct_.decorators)
+                foreach (string s in struct_.tags)
                 {
                     Console.WriteLine("checking the decorator : " + s);
 
@@ -110,25 +86,11 @@ namespace DataKeep
 
             }
 
-            return (StructTemplate[])result.ToArray(typeof(StructTemplate));
+            return (StructTemplate[]) result.ToArray(typeof(StructTemplate));
 
         }
 
-        public StructTemplate FindMasterStructTemplate(StructTemplate[] templates)
-        {
-            StructTemplate result = templates[0];
-
-            foreach(StructTemplate st in templates)
-            {
-                bool hasTag = false;
-                foreach (string s in st.blueprint)
-                    hasTag = hasTag || s.Contains("%tags%");
-                if (hasTag)
-                    result = st;
-            }
-
-            return result;
-        }
+        
 
         public string FillStructTemplate(PStruct struct_, StructTemplate template)
         {
@@ -137,11 +99,12 @@ namespace DataKeep
 
             {
                 int commandCount = 0;
-                for (int i = 0; i < template.blueprint.Length; i++)
+                for (int i = 0; i < template.template.Length; i++)
                 {
-                    string current = template.blueprint[i];
+                    string current = template.template[i];
                     
                     current = current.Replace("%structname%", struct_.name);
+
                     Console.WriteLine("current blueprint is : " + current + " and commandcount is " + commandCount);
 
                     if (commandCount != 0)
@@ -171,21 +134,21 @@ namespace DataKeep
             }
             
             {   // getting the field code
-                for (int i = 0; i < struct_.pFields.Length; i++)
+                for (int i = 0; i < struct_.fields.Length; i++)
                 {
-                    FieldTemplate correct = FindCorrectFieldTemplate(struct_.pFields[i], template.fields);
-                    string templateCode = correct.blueprint;
+                    FieldTemplate correct = FindCorrectFieldTemplate(struct_.fields[i], template.fields);
+                    string templateCode = correct.template;
 
-                    //Console.WriteLine("field of struct_ with data \n" + PField.ToString(struct_.pFields[i]) + "\n found match with \n" + FieldTemplate.ToString(correct));
+                    //Console.WriteLine("field of struct_ with data \n" + PField.ToString(struct_.fields[i]) + "\n found match with \n" + FieldTemplate.ToString(correct));
 
-                    templateCode = templateCode.Replace("%fieldname%", struct_.pFields[i].name);
-                    templateCode = templateCode.Replace("%fieldtype%", struct_.pFields[i].type);
+                    templateCode = templateCode.Replace("%fieldname%", struct_.fields[i].name);
+                    templateCode = templateCode.Replace("%fieldtype%", struct_.fields[i].type);
                     //templateCode = templateCode.Replace("%i%", i);
 
                     //Console.WriteLine("code is : \n" + templateCode);
                     fieldCode += templateCode;
 
-                    if (i + 1 != struct_.pFields.Length)
+                    if (i + 1 != struct_.fields.Length)
                         fieldCode += "\n";
                 }
             }
@@ -203,7 +166,7 @@ namespace DataKeep
                 bool tagInAllowed = false;
                 bool tagInDenied = false;
 
-                foreach (string s in field.decorators)
+                foreach (string s in field.tags)
                 {
 
                     foreach (string temp in current.allowedTags)
@@ -222,25 +185,6 @@ namespace DataKeep
 
             return templates[0];
         }
-
-        enum EntityType
-        {
-            Player,
-            Zombie,
-            Undead
-
-        }
-
-        struct Entity
-        {
-            public string entityID;
-            public EntityType entityType;
-
-        }
-
-       
-
-
     }
 
 }

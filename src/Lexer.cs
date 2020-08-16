@@ -8,44 +8,39 @@ namespace DataKeep
 
     class Lexer
     {
-
         public FileHandler fileHandler;
+        public Token[][] fileTokens;
 
         public int currentLine = 0;     // lines of filehandler
         public int lineIndex = 0;       // charachter indices
 
         private Hashtable keywordTypes;
 
-        public Token[][] fileTokens;
-
         public Lexer(FileHandler fh)
         {
             fileHandler = fh;
             fh.LoadFile();
 
-            keywordTypes = new Hashtable();
-            AddKeywords();
-
+            InitHastable();
         }
 
-        public void AddKeywords()
+        internal void InitHastable()
         {
-
-            keywordTypes.Add("struct", TokenTypes.Struct);
-            keywordTypes.Add("abstract", TokenTypes.Abstract);
-            keywordTypes.Add("enum", TokenTypes.Enum);
-            keywordTypes.Add(":", TokenTypes.TypeDecl);
-            keywordTypes.Add("->", TokenTypes.Inheritance);
-            keywordTypes.Add("#", TokenTypes.Preprocess);
-            keywordTypes.Add(" ", TokenTypes.Space);
-            keywordTypes.Add(";", TokenTypes.SemiColon);
-            keywordTypes.Add("(", TokenTypes.OpenParen);
-            keywordTypes.Add(")", TokenTypes.CloseParen);
-            keywordTypes.Add("{", TokenTypes.OpenCurly);
-            keywordTypes.Add("}", TokenTypes.CloseCurly);
-            keywordTypes.Add("@", TokenTypes.Decorator);
-            keywordTypes.Add(",", TokenTypes.Comma);
-
+            keywordTypes = new Hashtable()
+            {
+                {"struct" , TokenTypes.Struct },
+                {"->", TokenTypes.Inheritance },
+                {":", TokenTypes.TypeDecl },
+                {"#", TokenTypes.Preprocess },
+                {" ", TokenTypes.Space },
+                {"(", TokenTypes.OpenParen },
+                {")", TokenTypes.CloseParen },
+                {"{", TokenTypes.OpenCurly },
+                {"}", TokenTypes.CloseCurly },
+                {"@", TokenTypes.Tag },
+                {",", TokenTypes.Comma },
+                {";", TokenTypes.SemiColon },
+            };
         }
 
         public void LexAllLines()
