@@ -3,6 +3,7 @@ using System.Collections;
 
 using DataKeep.ParserTypes;
 using DataKeep.Tokens;
+using System.Diagnostics;
 
 namespace DataKeep
 {
@@ -23,17 +24,17 @@ namespace DataKeep
         public Parser(Lexer lexer)
         {
             this.lexer = lexer;
-            Debug.SetPrefix("Parser");
+            DebugDK.SetPrefix("Parser");
         }
 
         public void PrintAllData()
         {
-            if (Debug.log)
+            if (DebugDK.log)
             {
-                Debug.Log("\nWriting out all of the resulting parser data (PStructs) : ");
+                DebugDK.Log("\nWriting out all of the resulting parser data (PStructs) : ");
 
                 foreach (PStruct ps in structs)
-                    Console.WriteLine(PStruct.ToString(ps));
+                    Debug.WriteLine(PStruct.ToString(ps));
             }
         }
 
@@ -44,7 +45,7 @@ namespace DataKeep
 
         public void ParseAllLines()
         {
-            Debug.Log("Starting parser");
+            DebugDK.Log("Starting parser");
 
             while (true)
             {
@@ -57,7 +58,7 @@ namespace DataKeep
 
             }
 
-            Debug.Log("Parser is done.");
+            DebugDK.Log("Parser is done.");
         }
 
         public void ParseCurrentLine()
@@ -79,7 +80,7 @@ namespace DataKeep
 
             if ((hasStruct && noSemiColon) || hasInheritance)
             {
-                Debug.Log("Detected a struct in the line : '" + Token.SmashTokens(GetCurrentLine(), "") + "'" );
+                DebugDK.Log("Detected a struct in the line : '" + Token.SmashTokens(GetCurrentLine(), "") + "'" );
                 
                 inStruct = true;
 
@@ -103,7 +104,7 @@ namespace DataKeep
                 activeStruct.tags = GetTags();
                 fieldBuffer = new ArrayList();        // reset fields
 
-                Debug.Log("Extracted from line, structname : " + name + ", inheritance : " + inheritance + ", tags : " + Token.StringArrToString(ref activeStruct.tags, "-"));
+                DebugDK.Log("Extracted from line, structname : " + name + ", inheritance : " + inheritance + ", tags : " + Token.StringArrToString(ref activeStruct.tags, "-"));
 
             }
 
@@ -117,7 +118,7 @@ namespace DataKeep
             if (hasTypeDecl && hasSemiColon)
             {
 
-                Debug.Log("Detected a field in the line : '" + Token.SmashTokens(GetCurrentLine(), "") + "'");
+                DebugDK.Log("Detected a field in the line : '" + Token.SmashTokens(GetCurrentLine(), "") + "'");
 
                 int typeDeclIndex = Token.IndexOfType(GetCurrentLine(), TokenTypes.TypeDecl);
                 string name = Token.SmashTokens(Token.GetRange(GetCurrentLine(), 0, typeDeclIndex), "");
@@ -133,7 +134,7 @@ namespace DataKeep
                 if (inStruct)
                     fieldBuffer.Add(field);
 
-                Debug.Log("Extracted from line, fieldname : " + name + ", fieldtype: " + type+ ", tags : " + Token.StringArrToString(ref field.tags, "-") + ", adding field to fieldBuffer : " + inStruct);
+                DebugDK.Log("Extracted from line, fieldname : " + name + ", fieldtype: " + type+ ", tags : " + Token.StringArrToString(ref field.tags, "-") + ", adding field to fieldBuffer : " + inStruct);
             }
         }
 
@@ -146,11 +147,11 @@ namespace DataKeep
 
             if (hasDeco)
             {
-                Debug.Log("Detected a tag in the line : '" + Token.SmashTokens(GetCurrentLine(), "") + "'");
+                DebugDK.Log("Detected a tag in the line : '" + Token.SmashTokens(GetCurrentLine(), "") + "'");
 
                 decoratorBuffer = Token.SmashTokens(Token.GetRange(GetCurrentLine(), 1, GetCurrentLine().Length), "");
 
-                Debug.Log("New tag found : '" + decoratorBuffer);
+                DebugDK.Log("New tag found : '" + decoratorBuffer);
             }
         }
 
@@ -160,13 +161,13 @@ namespace DataKeep
     
             if (hasCloseCurly)
             {
-                Debug.Log("Detected an end of scope in line : '" + Token.SmashTokens(GetCurrentLine(), "") + "'");
-                Debug.Log("Adding a struct : " + inStruct);
+                DebugDK.Log("Detected an end of scope in line : '" + Token.SmashTokens(GetCurrentLine(), "") + "'");
+                DebugDK.Log("Adding a struct : " + inStruct);
                 if (inStruct)
                 {
-                    Debug.Log("Adding the fieldBuffer to currentStruct.");
+                    DebugDK.Log("Adding the fieldBuffer to currentStruct.");
                     activeStruct.fields = (PField[])fieldBuffer.ToArray(typeof(PField)); // adding the fields
-                    Debug.Log("Adding the currentStruct to structs.");
+                    DebugDK.Log("Adding the currentStruct to structs.");
                     structs.Add(activeStruct);
                 }
 
@@ -222,26 +223,26 @@ namespace DataKeep
         {
             ArrayList newStructs = new ArrayList();
 
-            Debug.Log("Giving each struct its inheritant fields.");
+            DebugDK.Log("Giving each struct its inheritant fields.");
 
-            Debug.Log("Looping to all the structs.");
+            DebugDK.Log("Looping to all the structs.");
             for (int i = 0; i < structs.Count; i++)
             {
                 PStruct currentStruct = (PStruct)structs[i];
 
-                Debug.Log("Checking if this struct has inheritance..., struct is : " + currentStruct.name);
+                DebugDK.Log("Checking if this struct has inheritance..., struct is : " + currentStruct.name);
                 if (!Token.IsEmpty(currentStruct.inheritance))
                 {
-                    Debug.Log("Current struct has inheritance : " + currentStruct.inheritance);
-                    Debug.Log("Looping through all the structs to find a match...");
+                    DebugDK.Log("Current struct has inheritance : " + currentStruct.inheritance);
+                    DebugDK.Log("Looping through all the structs to find a match...");
 
                     // NOTE: change removebeginwhitespace function at the inheritance detection if problems with finding.
                     foreach (PStruct pStruct in structs)
                     {
-                        Debug.Log("     Looking for match with struct " + pStruct.name);
+                        DebugDK.Log("     Looking for match with struct " + pStruct.name);
                         if (pStruct.name.Contains(currentStruct.inheritance))
                         {
-                            Debug.Log("     Match found. Adding fields.");
+                            DebugDK.Log("     Match found. Adding fields.");
                             ArrayList newField = new ArrayList();
 
                             foreach (PField p in pStruct.fields)
@@ -264,7 +265,7 @@ namespace DataKeep
             structs = newStructs;
 
 
-            Debug.Log("Struct inheritance is done.");
+            DebugDK.Log("Struct inheritance is done.");
         }
 
 

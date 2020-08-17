@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using DataKeep.Tokens;
+using System.Diagnostics;
 
 namespace DataKeep.Syntax
 {
@@ -24,9 +25,9 @@ namespace DataKeep.Syntax
 
         public SyntaxParser(FileHandler fh)
         {
-            Debug.SetPrefix("SyntaxParser");
-            Debug.Log("Starting syntaxparser.");
-            Debug.Log("Loading file.");
+            DebugDK.SetPrefix("SyntaxParser");
+            DebugDK.Log("Starting syntaxparser.");
+            DebugDK.Log("Loading file.");
 
             fileHandler = fh;
             fh.LoadFile();
@@ -39,7 +40,7 @@ namespace DataKeep.Syntax
 
         public void ParseAllLines()
         {
-            Debug.Log("Parsing all the lines.");
+            DebugDK.Log("Parsing all the lines.");
             while (true)
             {
                 if (currentLine >= fileHandler.fileLines.Length)
@@ -53,10 +54,10 @@ namespace DataKeep.Syntax
                 ParseCurrentLine();
                 currentLine++;
 
-                Debug.Log("Current state is; inStruct : " + inStruct + ", inField : " + inField + ", fieldBuffer : " + fieldBuffer);
+                DebugDK.Log("Current state is; inStruct : " + inStruct + ", inField : " + inField + ", fieldBuffer : " + fieldBuffer);
 
             }
-            Debug.Log("Parsing is done.");
+            DebugDK.Log("Parsing is done.");
         }
 
         internal void ParseCurrentLine()
@@ -89,19 +90,19 @@ namespace DataKeep.Syntax
         {
             StructTemplate[] sts = (StructTemplate[]) structTemplates.ToArray(typeof(StructTemplate));
 
-            if (Debug.log)
+            if (DebugDK.log)
             {
-                Debug.Log("Printing all of the data.");
+                DebugDK.Log("Printing all of the data.");
 
                 foreach (StructTemplate st in sts)
-                    Console.WriteLine(StructTemplate.ToString(st));
+                    Debug.WriteLine(StructTemplate.ToString(st));
             }
         }
 
         // struct detection
         public void DefStructCommand(string[] command)
         {
-            Debug.Log("Def struct command found.");
+            DebugDK.Log("Def struct command found.");
 
             string[] tags = GetRange(ref command, 1, command.Length);
 
@@ -112,7 +113,7 @@ namespace DataKeep.Syntax
             fieldTemplateBuffer = new ArrayList();
             inStruct = true;
 
-            Debug.Log("Creating new struct buffer with data; allowedTags : " + SmashStrings(ref structBuffer.allowedTags) + ", deniedTags : " + SmashStrings(ref structBuffer.deniedTags));
+            DebugDK.Log("Creating new struct buffer with data; allowedTags : " + SmashStrings(ref structBuffer.allowedTags) + ", deniedTags : " + SmashStrings(ref structBuffer.deniedTags));
 
         }
 
@@ -124,7 +125,7 @@ namespace DataKeep.Syntax
 
         public void EndStructCommand()
         {
-            Debug.Log("End struct command found.");
+            DebugDK.Log("End struct command found.");
 
             structBuffer.template = (string[]) templateLinesBuffer.ToArray(typeof(string));
             structBuffer.fields = (FieldTemplate[]) fieldTemplateBuffer.ToArray(typeof(FieldTemplate));
@@ -132,13 +133,13 @@ namespace DataKeep.Syntax
             structTemplates.Add(structBuffer);
             inStruct = false;
 
-            Debug.Log("Template line buffer of new struct is : " + SmashStrings(ref structBuffer.template));
+            DebugDK.Log("Template line buffer of new struct is : " + SmashStrings(ref structBuffer.template));
         }
 
         // field detection
         public void DefFieldCommand(string line)
         {
-            Debug.Log("Found field def.");
+            DebugDK.Log("Found field def.");
             fieldBuffer = line;
             inField = true;
         }
@@ -159,7 +160,7 @@ namespace DataKeep.Syntax
             fieldTemplateBuffer.Add(nField);
 
             inField = false;
-            Debug.Log("Adding field to structBuffer; allowedTags : " + SmashStrings(ref nField.allowedTags) + ", deniedTags : " + SmashStrings(ref nField.deniedTags) + ", template : " + line);
+            DebugDK.Log("Adding field to structBuffer; allowedTags : " + SmashStrings(ref nField.allowedTags) + ", deniedTags : " + SmashStrings(ref nField.deniedTags) + ", template : " + line);
         }
 
         // utility functions

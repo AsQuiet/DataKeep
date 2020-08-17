@@ -18,13 +18,13 @@ namespace DataKeep
 
         public Lexer(FileHandler fh)
         {
-            Debug.SetPrefix("Lexer");
-            Debug.Log("Creating lexer. \n[Lexer] Loading file.");
+            DebugDK.SetPrefix("Lexer");
+            DebugDK.Log("Creating lexer. \n[Lexer] Loading file.");
 
             fileHandler = fh;
             fh.LoadFile();
 
-            Debug.Log("Creating Hashtable");
+            DebugDK.Log("Creating Hashtable");
             InitHastable();
         }
 
@@ -51,9 +51,8 @@ namespace DataKeep
         {
             ArrayList tokens = new ArrayList();
 
-            Debug.Print("Reading and extracting tokens from file : " + fileHandler.path);
-            Debug.Log("Lexing all lines.");
-
+            DebugDK.Print("Reading and extracting tokens from file : " + fileHandler.path);
+            DebugDK.Log("Lexing all lines.");
 
             while (true)
             {
@@ -63,13 +62,13 @@ namespace DataKeep
                 tokens.Add(Token.RemoveBeginWhiteSpace(LexCurrentLine()));
                 currentLine++;
 
-                Debug.Log("Lexing next line, current state is : ");
-                Debug.Log("     currentLine : " + currentLine + ", lineIndex : " + lineIndex);
+                //Debug.Log("Lexing next line, current state is : ");
+                //Debug.Log("     currentLine : " + currentLine + ", lineIndex : " + lineIndex);
 
             }
 
             fileTokens = (Token[][])tokens.ToArray(typeof(Token[]));
-            Debug.Log("Lexer is done.");
+            DebugDK.Log("Lexer is done.");
         }
 
         private Token[] LexCurrentLine()
@@ -81,7 +80,7 @@ namespace DataKeep
                 if (IsEof())
                     break;
 
-                Debug.Log("Extracting all tokens from current line.");
+                //Debug.Log("Extracting all tokens from current line.");
                 Token nToken = GetNextToken();
 
                 tokens.Add(nToken);

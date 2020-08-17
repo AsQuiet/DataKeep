@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Diagnostics;
+using System.Collections;
 
 namespace DataKeep
 {
@@ -16,10 +18,10 @@ namespace DataKeep
 
         public void LoadFile()
         {
-            string save = Debug.prefix;
-            Debug.SetPrefix("FileHandler");
-            Debug.Print("Loading the file at path : " + path);
-            Debug.SetPrefix(save);
+            //string save = Debug.prefix;
+            //Debug.SetPrefix("FileHandler");
+            //Debug.Print("Loading the file at path : " + path);
+            //Debug.SetPrefix(save);
             fileLines = File.ReadAllLines(path);
         }
 
@@ -32,12 +34,15 @@ namespace DataKeep
 
     }
 
-    class Debug
+    class DebugDK
     {
         public static string prefix = "";
 
         private static bool msg = true;     // updates on what compiler is doing
         public static bool log = false;    // printing out raw data
+        public static bool timer = true;
+
+        private static Hashtable timers = new Hashtable();
 
         public static void Print(string msg_)
         {
@@ -64,6 +69,29 @@ namespace DataKeep
         public static void SetPrefix(string s)
         {
             prefix = s;
+        }
+
+        public static void StartStopwatch(string id)
+        {
+            timers[id] = NanoTime();
+        }
+
+        public static void StopStopwatch(string id)
+        {
+            long current = NanoTime();
+            long elapsed = current - ((long)timers[id]);
+            long elapsedMS = elapsed / 1000000L;
+
+            if (timer)
+                Console.WriteLine("[Timer] '" + id + "' took " + elapsed + "ns. (" + elapsedMS + "ms).");
+
+        }
+
+        public static long NanoTime()
+        {
+            double timestamp = Stopwatch.GetTimestamp();
+            double nanoseconds = 1_000_000_000.0 * timestamp / Stopwatch.Frequency;
+            return (long)nanoseconds;
         }
 
     }

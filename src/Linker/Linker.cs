@@ -17,15 +17,15 @@ namespace DataKeep
 
         public Linker(SyntaxParser sp, Parser p)
         {
-            Debug.SetPrefix("Linker");
-            Debug.Log("Getting structs and structTemplates from SyntaxParser and Parser");
+            DebugDK.SetPrefix("Linker");
+            DebugDK.Log("Getting structs and structTemplates from SyntaxParser and Parser");
             structs = (PStruct[]) p.structs.ToArray(typeof(PStruct));
             structTemplates = (StructTemplate[]) sp.structTemplates.ToArray(typeof(StructTemplate));
         }
 
         public void Convert()
         {
-            Debug.Log("Converting every struct...");
+            DebugDK.Log("Converting every struct...");
 
             foreach (PStruct st in structs)
                 ConvertStruct(st);
@@ -33,19 +33,19 @@ namespace DataKeep
 
         public void OutputToFile(string path)
         {
-            Debug.Print("Outputting all data to file : " + path);
+            DebugDK.Print("Outputting all data to file : " + path);
             File.WriteAllText(path, finalCode);
         }
 
         public void ConvertStruct(PStruct struct_)
         {
-            Debug.Log("Converting the struct with name : " + struct_.name);
+            DebugDK.Log("Converting the struct with name : " + struct_.name);
             StructTemplate[] templates = FindCorrectStructTemplates(struct_, structTemplates);
 
             string code = "";
             string master = "";
 
-            Debug.Log("Filling every corresponding structtemplate.");
+            DebugDK.Log("Filling every corresponding structtemplate.");
             foreach (StructTemplate st in templates)
             {
                 string templateCode = FillStructTemplate(struct_, st);
@@ -63,7 +63,7 @@ namespace DataKeep
 
         public StructTemplate[] FindCorrectStructTemplates(PStruct struct_, StructTemplate[] templates)
         {
-            Debug.Log("Finding the correct structTemplates for struct with name " + struct_.name);
+            DebugDK.Log("Finding the correct structTemplates for struct with name " + struct_.name);
             ArrayList result = new ArrayList();
 
             for (int i = 0; i  < templates.Length; i++)
@@ -73,11 +73,11 @@ namespace DataKeep
                 bool tagInAllowed = false;
                 bool tagInDenied = false;
 
-                Debug.Log("Looking for match with current Template.");
+                DebugDK.Log("Looking for match with current Template.");
 
                 foreach (string s in struct_.tags)
                 {
-                    Debug.Log("Checking the tag '" + s + "' for a match.");
+                    DebugDK.Log("Checking the tag '" + s + "' for a match.");
 
                     foreach (string temp in currentT.allowedTags)
                         tagInAllowed = tagInAllowed || temp.Contains(s);
@@ -85,7 +85,7 @@ namespace DataKeep
                     foreach (string temp in currentT.deniedTags)
                         tagInDenied = tagInDenied || temp.Contains("/" + s);
 
-                    Debug.Log("Result of checking (allowed/denied) is (" +tagInAllowed + "/" + tagInDenied + ")");
+                    DebugDK.Log("Result of checking (allowed/denied) is (" +tagInAllowed + "/" + tagInDenied + ")");
 
                 }
 
@@ -105,7 +105,7 @@ namespace DataKeep
             string result = "";
             string fieldCode = "";
 
-            Debug.Log("Filling out struct with name : " + struct_.name);
+            DebugDK.Log("Filling out struct with name : " + struct_.name);
 
             {
                 int commandCount = 0;
@@ -115,7 +115,7 @@ namespace DataKeep
                     
                     current = current.Replace("%structname%", struct_.name);
 
-                    Debug.Log("current line in template.templates (string[]) is : " + current);
+                    DebugDK.Log("current line in template.templates (string[]) is : " + current);
 
                     if (commandCount != 0)
                         commandCount--;
@@ -142,12 +142,12 @@ namespace DataKeep
                             result += current;
                 }
 
-                Debug.Log("Filled out template is : " + result);
+                DebugDK.Log("Filled out template is : " + result);
 
             }
             
             {   // getting the field code
-                Debug.Log("Filling out the fields for struct with name : " + struct_.name);
+                DebugDK.Log("Filling out the fields for struct with name : " + struct_.name);
                 for (int i = 0; i < struct_.fields.Length; i++)
                 {
                     FieldTemplate correct = FindCorrectFieldTemplate(struct_.fields[i], template.fields);
@@ -155,12 +155,12 @@ namespace DataKeep
 
                     //Debug.Log("Field of struct_ with data \n" + PField.ToString(struct_.fields[i]) + "\n found match with \n" + FieldTemplate.ToString(correct));
 
-                    Debug.Log("Replacing variables in found template...");
+                    DebugDK.Log("Replacing variables in found template...");
                     templateCode = templateCode.Replace("%fieldname%", struct_.fields[i].name);
                     templateCode = templateCode.Replace("%fieldtype%", struct_.fields[i].type);
 
 
-                    Debug.Log("Resulting code is : " + templateCode);
+                    DebugDK.Log("Resulting code is : " + templateCode);
                     fieldCode += templateCode;
                     
                     fieldCode += "\n";
@@ -172,7 +172,7 @@ namespace DataKeep
 
         public FieldTemplate FindCorrectFieldTemplate(PField field, FieldTemplate[] templates)
         {
-            Debug.Log("Finding the correct template for field with name : " + field.name);
+            DebugDK.Log("Finding the correct template for field with name : " + field.name);
             for (int i = 0; i < templates.Length; i++)
             {
                 FieldTemplate current = templates[i];
