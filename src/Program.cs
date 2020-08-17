@@ -11,11 +11,14 @@ namespace DataKeep
         static void Main(string[] args)
         {
 
+            string macPath = "/Users/QuinnyBoy/Documents";
+            string winPath = "E:\\PROJECTS";               
+
             DebugDK.StartStopwatch("main");
-            DebugDK.SetLog(false);
+            DebugDK.SetLog(true);
 
             DebugDK.StartStopwatch("lexer");
-            Lexer lexer = new Lexer(new FileHandler("/Users/QuinnyBoy/Documents/DataManager/DataKeep/data.dk"));
+            Lexer lexer = new Lexer(new FileHandler(winPath + "/DataManager/DataKeep/data.dk"));
             lexer.LexAllLines();
             DebugDK.StopStopwatch("lexer");
 
@@ -27,7 +30,7 @@ namespace DataKeep
             parser.PrintAllData();
 
             DebugDK.StartStopwatch("syntaxparser");
-            SyntaxParser syntaxParser = new SyntaxParser(new FileHandler("/Users/QuinnyBoy/Documents/DataManager/DataKeep/main.dks"));
+            SyntaxParser syntaxParser = new SyntaxParser(new FileHandler(winPath + "/DataManager/DataKeep/main.dks"));
             syntaxParser.ParseAllLines();
             DebugDK.StopStopwatch("syntaxparser");
             syntaxParser.PrintAllData();

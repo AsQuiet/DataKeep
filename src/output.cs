@@ -1,43 +1,78 @@
-namespace DataKeep.Test
+using System;
+namespace DataKeep.Output
 {
+struct Vector3
+{
+public double x;
+public double[] y.ToString;
+public double[] z;
 
-    struct FieldTemplate
-    {
-        public string template;
-        public string[] allowedTags;
-        public string[] deniedTags;
-        public string secureTin;
+public static string ToString(Vector3 struct_)
+{
+string s = "(";
+s += "\nx : " + struct_.x;
+s += "\ny : " + struct_.y;
+foreach(double e in struct_.z) {s += e;}
 
-        public static string ToString(FieldTemplate struct_)
-        {
-            string s = "(";
+return s + ")";
+}
+public static void Print(Vector3 struct_)
+{
+Console.WriteLine(Vector3.ToString(struct_));
 
-            s += "\n" + struct_.template;
-            foreach (string e in struct_.allowedTags) { s += e; }
-            foreach (string e in struct_.deniedTags) { s += e; }
+}
+}
+struct TransformComponent
+{
+public uint entityID;
+public string entityName;
+public Vector3 pos;
+public Vector3 vel;
+public Vector3 acc;
 
+public static string ToString(TransformComponent struct_)
+{
+string s = "(";
+s += "\nentityID : " + struct_.entityID;
+s += "\nentityName : " + struct_.entityName;
+s += "\npos : " + Vector3.ToString(struct_.pos);
+s += "\nvel : " + Vector3.ToString(struct_.vel);
+s += "\nacc : " + Vector3.ToString(struct_.acc);
 
-            return s + ")";
-        }
-    }
-    struct StructTemplate
-    {
-        public string template;
-        public string[] allowedTags;
-        public string[] deniedTagsReWorkedVersion2;
-        public FieldTemplate[] fields;
+return s + ")";
+}
+public static void Print(TransformComponent struct_)
+{
+Console.WriteLine(TransformComponent.ToString(struct_));
 
-        public static string ToString(StructTemplate struct_)
-        {
-            string s = "(";
+}
+}
+struct SpriteRendererComponent
+{
+public uint entityID;
+public string entityName;
+public string img;
 
-            s += "\n" + struct_.template;
-            foreach (string e in struct_.allowedTags) { s += e; }
-            foreach (string e in struct_.deniedTagsReWorkedVersion2) { s += e; }
-            foreach (FieldTemplate e in struct_.fields) { s += FieldTemplate.ToString(e); }
+public static string ToString(SpriteRendererComponent struct_)
+{
+string s = "(";
+s += "\nentityID : " + struct_.entityID;
+s += "\nentityName : " + struct_.entityName;
+s += "\nimg : " + struct_.img;
 
-            return s + ")";
-        }
-    }
+return s + ")";
+}
+public static void Print(SpriteRendererComponent struct_)
+{
+Console.WriteLine(SpriteRendererComponent.ToString(struct_));
 
+}
+}
+enum PlayerStates
+{
+Alive,
+Dead,
+UnDead,
+
+}
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections;
 using DataKeep.Tokens;
 using System.Diagnostics;
@@ -181,7 +182,7 @@ namespace DataKeep.Syntax
             ArrayList result = new ArrayList();
             foreach (string e in tags)
                 if (!e.StartsWith("/"))
-                    result.Add(e);
+                    result.Add(Parser.RemoveWhitespace(e));
             return (string[])result.ToArray(typeof(string));
         }
 
@@ -190,7 +191,7 @@ namespace DataKeep.Syntax
             ArrayList result = new ArrayList();
             foreach (string e in tags)
                 if (e.StartsWith("/"))
-                    result.Add(e);
+                    result.Add(Parser.RemoveWhitespace(e));
             return (string[])result.ToArray(typeof(string));
         }
 

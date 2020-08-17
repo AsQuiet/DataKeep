@@ -1,11 +1,11 @@
 ﻿
 
-::defstruct default 
+::defstruct default /NoBody /Enum
 struct %structname%
 {
 ::startfields
-::$ isArrayToString
-public %fieldtype%[] %fieldname%;
+::$ IsArrayToString
+public %fieldtype%[] %fieldname%.ToString;
 ::$ IsArray
 public %fieldtype%[] %fieldname%;
 ::$ default
@@ -19,17 +19,36 @@ public %fieldtype% %fieldname%;
 public static string ToString(%structname% struct_)
 {
 string s = "(";
-
 ::startfields
-::$ NoPrint
-
-::$ isArrayToString
+::$ IsArrayToString
 foreach(%fieldtype% e in struct_.%fieldname%) {s += %fieldtype%.ToString(e);}
 ::$ IsArray
 foreach(%fieldtype% e in struct_.%fieldname%) {s += e;}
-::$ default
-s += "\n" + struct_.%fieldname%;
+::$ NonArrayToString
+s += "\n%fieldname% : " + %fieldtype%.ToString(struct_.%fieldname%);
+::$ default /NoPrint
+s += "\n%fieldname% : " + struct_.%fieldname%;
 ::endfields
 return s + ")";
+}
+::endstruct
+
+::defstruct Print
+public static void Print(%structname% struct_)
+{
+Console.WriteLine(%structname%.ToString(struct_));
+::startfields
+::endfields
+}
+::endstruct
+
+::defstruct Enum
+enum %structname%
+{
+::startfields
+::$ default
+%fieldname%,
+::endfields
+%tags%
 }
 ::endstruct

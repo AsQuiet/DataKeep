@@ -41,9 +41,12 @@ namespace DataKeep
         {
             DebugDK.Log("Converting the struct with name : " + struct_.name);
             StructTemplate[] templates = FindCorrectStructTemplates(struct_, structTemplates);
-
+                 
             string code = "";
             string master = "";
+
+            if (templates.Length == 0)
+                return;
 
             DebugDK.Log("Filling every corresponding structtemplate.");
             foreach (StructTemplate st in templates)
@@ -80,10 +83,10 @@ namespace DataKeep
                     DebugDK.Log("Checking the tag '" + s + "' for a match.");
 
                     foreach (string temp in currentT.allowedTags)
-                        tagInAllowed = tagInAllowed || temp.Contains(s);
+                        tagInAllowed = tagInAllowed || temp == s;
 
                     foreach (string temp in currentT.deniedTags)
-                        tagInDenied = tagInDenied || temp.Contains("/" + s);
+                        tagInDenied = tagInDenied || temp == "/" + s;
 
                     DebugDK.Log("Result of checking (allowed/denied) is (" +tagInAllowed + "/" + tagInDenied + ")");
 
@@ -150,7 +153,13 @@ namespace DataKeep
                 DebugDK.Log("Filling out the fields for struct with name : " + struct_.name);
                 for (int i = 0; i < struct_.fields.Length; i++)
                 {
-                    FieldTemplate correct = FindCorrectFieldTemplate(struct_.fields[i], template.fields);
+
+                    FieldTemplate? searchResult = FindCorrectFieldTemplate(struct_.fields[i], template.fields);
+
+                    if (searchResult == null)
+                        continue;
+
+                    FieldTemplate correct = (FieldTemplate) searchResult;
                     string templateCode = correct.template;
 
                     //Debug.Log("Field of struct_ with data \n" + PField.ToString(struct_.fields[i]) + "\n found match with \n" + FieldTemplate.ToString(correct));
@@ -170,7 +179,7 @@ namespace DataKeep
             return result.Replace("%fieldshere%", fieldCode);
         }
 
-        public FieldTemplate FindCorrectFieldTemplate(PField field, FieldTemplate[] templates)
+        public FieldTemplate? FindCorrectFieldTemplate(PField field, FieldTemplate[] templates)
         {
             DebugDK.Log("Finding the correct template for field with name : " + field.name);
             for (int i = 0; i < templates.Length; i++)
@@ -184,24 +193,22 @@ namespace DataKeep
                 {
 
                     foreach (string temp in current.allowedTags)
-                        tagInAllowed = tagInAllowed || temp.Contains(s);
+                        tagInAllowed = tagInAllowed || temp == s;
 
                     foreach (string temp in current.deniedTags)
-                        tagInDenied = tagInDenied || temp.Contains(s);
+                        tagInDenied = tagInDenied || temp == "/" + s;
                 }
 
-                if (tagInAllowed && !tagInDenied)
+                 if (tagInAllowed && !tagInDenied)
                     return current;
 
 
             }
              
 
-            return templates[0];
+            return null;
         }
     }
-
-
 
 }
 /*

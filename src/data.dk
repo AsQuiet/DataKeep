@@ -1,33 +1,58 @@
 ﻿
 
-@(ToString)
-struct FieldTemplate
+@(NoBody)
+struct Component
 {
 
-	template : string;
-@(IsArray)
-	allowedTags : string;
-@(IsArray)
-	deniedTags : string;
-@(NoPrint)
-	secureTin: string;
+	entityID : uint;
+	entityName : string;
 
 }
 
+@(ToString, Print)
+struct Vector3
+{
+	x : double;
+	@(IsArrayToString)
+	y : double;
+	@(IsArray)
+	z : double;
+}
 
-@(ToString)
-struct StructTemplate
+@(ToString, Print)
+struct TransformComponent -> Component
 {
 	
-	template : string;
-@(IsArray)
-	allowedTags : string;
-@(IsArray)
-	deniedTagsReWorkedVersion2 : string;
-@(isArrayToString)
-	fields : FieldTemplate;
+	@(NonArrayToString)
+	pos : Vector3;
+	@(NonArrayToString)
+	vel : Vector3;
+	@(NonArrayToString)
+	acc : Vector3;
+
+}
+
+@(ToString, Print)
+struct SpriteRendererComponent -> Component
+{
+
+	img : string;
 
 }
 
 
+@(NoBody, InitEntities)
+struct InitEntities
+{
+	Player : Entity;
+}
 
+@(Enum, NoBody)
+struct PlayerStates
+{
+	
+	Alive : i;
+	Dead : i;
+	UnDead : i;
+
+}
