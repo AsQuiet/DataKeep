@@ -24,6 +24,10 @@ namespace DataKeep.Syntax
 
         public SyntaxParser(FileHandler fh)
         {
+            Debug.SetPrefix("SyntaxParser");
+            Debug.Log("Starting syntaxparser.");
+            Debug.Log("Loading file.");
+
             fileHandler = fh;
             fh.LoadFile();
         }
@@ -35,8 +39,8 @@ namespace DataKeep.Syntax
 
         public void ParseAllLines()
         {
-
-            while(true)
+            Debug.Log("Parsing all the lines.");
+            while (true)
             {
                 if (currentLine >= fileHandler.fileLines.Length)
                     break;
@@ -48,7 +52,11 @@ namespace DataKeep.Syntax
 
                 ParseCurrentLine();
                 currentLine++;
+
+                Debug.Log("Current state is; inStruct : " + inStruct + ", inField : " + inField + ", fieldBuffer : " + fieldBuffer);
+
             }
+            Debug.Log("Parsing is done.");
         }
 
         internal void ParseCurrentLine()
@@ -81,15 +89,20 @@ namespace DataKeep.Syntax
         {
             StructTemplate[] sts = (StructTemplate[]) structTemplates.ToArray(typeof(StructTemplate));
 
-            Console.WriteLine("Printing all the data..");
+            if (Debug.log)
+            {
+                Debug.Log("Printing all of the data.");
 
-            foreach (StructTemplate st in sts)
-                Console.WriteLine(StructTemplate.ToString(st));
+                foreach (StructTemplate st in sts)
+                    Console.WriteLine(StructTemplate.ToString(st));
+            }
         }
 
         // struct detection
         public void DefStructCommand(string[] command)
         {
+            Debug.Log("Def struct command found.");
+
             string[] tags = GetRange(ref command, 1, command.Length);
 
             structBuffer.allowedTags = GetAllowed(ref tags);
@@ -98,9 +111,9 @@ namespace DataKeep.Syntax
             templateLinesBuffer = new ArrayList();      // resseting
             fieldTemplateBuffer = new ArrayList();
             inStruct = true;
-            
-            Console.WriteLine("creating new struct buffer");
-            
+
+            Debug.Log("Creating new struct buffer with data; allowedTags : " + SmashStrings(ref structBuffer.allowedTags) + ", deniedTags : " + SmashStrings(ref structBuffer.deniedTags));
+
         }
 
         public void AddTemplateLine()
@@ -111,19 +124,21 @@ namespace DataKeep.Syntax
 
         public void EndStructCommand()
         {
+            Debug.Log("End struct command found.");
+
             structBuffer.template = (string[]) templateLinesBuffer.ToArray(typeof(string));
             structBuffer.fields = (FieldTemplate[]) fieldTemplateBuffer.ToArray(typeof(FieldTemplate));
 
             structTemplates.Add(structBuffer);
             inStruct = false;
 
-            Console.WriteLine("ending enw struct " + structBuffer.fields.Length);
-            
+            Debug.Log("Template line buffer of new struct is : " + SmashStrings(ref structBuffer.template));
         }
 
         // field detection
         public void DefFieldCommand(string line)
         {
+            Debug.Log("Found field def.");
             fieldBuffer = line;
             inField = true;
         }
@@ -144,6 +159,7 @@ namespace DataKeep.Syntax
             fieldTemplateBuffer.Add(nField);
 
             inField = false;
+            Debug.Log("Adding field to structBuffer; allowedTags : " + SmashStrings(ref nField.allowedTags) + ", deniedTags : " + SmashStrings(ref nField.deniedTags) + ", template : " + line);
         }
 
         // utility functions

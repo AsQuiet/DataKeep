@@ -11,20 +11,12 @@ namespace DataKeep
         static void Main(string[] args)
         {
 
+            Debug.SetLog(false);
+
             Lexer lexer = new Lexer(new FileHandler("data.dk"));
             lexer.LexAllLines();
 
-            foreach(Token[] ts in lexer.fileTokens)
-            {
-                Console.WriteLine("------------");
-                Token[] tss = Token.RemoveBeginWhiteSpace(ts);
-
-                foreach (Token t in tss)
-                    Token.PrintToken(t);   
-            }
-
             Parser parser = new Parser(lexer);
-
             parser.ParseAllLines();
             parser.GiveStructInheritance();
             parser.PrintAllData();

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 
-
 namespace DataKeep
 {
 
@@ -17,6 +16,10 @@ namespace DataKeep
 
         public void LoadFile()
         {
+            string save = Debug.prefix;
+            Debug.SetPrefix("FileHandler");
+            Debug.Print("Loading the file at path : " + path);
+            Debug.SetPrefix(save);
             fileLines = File.ReadAllLines(path);
         }
 
@@ -26,6 +29,42 @@ namespace DataKeep
                 Console.WriteLine(fileLines[i]);
         }
 
+
+    }
+
+    class Debug
+    {
+        public static string prefix = "";
+
+        private static bool msg = true;     // updates on what compiler is doing
+        public static bool log = false;    // printing out raw data
+
+        public static void Print(string msg_)
+        {
+            if (msg)
+                Console.WriteLine("[" + prefix + "] " + msg_);
+        }
+
+        public static void Log(string msg_)
+        {
+            if (log)
+                Console.WriteLine("[" + prefix + "] " + msg_);
+        }
+
+        public static void SetPrint(bool b)
+        {
+            msg = b;
+        }
+
+        public static void SetLog(bool b)
+        {
+            log = b;
+        }
+
+        public static void SetPrefix(string s)
+        {
+            prefix = s;
+        }
 
     }
 
