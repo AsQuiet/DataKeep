@@ -110,4 +110,4 @@ def GetArguments(tag):
     return tag.arguments
 
 def GetArgument(tag, index):
-    return tag.arguments[0]
+    return tag.arguments[index]

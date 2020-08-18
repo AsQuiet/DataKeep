@@ -1,0 +1,32 @@
+DEF s string
+DEF s[] string[]
+
+@NoBody
+struct Base
+{
+    name : s;
+    @Convert($arr, $PTag)
+    tags : PTag[];
+}
+
+@ToString, Print
+struct PStruct -> Base
+{
+    @Convert($arr, $PField)
+    fields : PField[];
+    inheritance : s;
+}
+
+@ToString, Print
+struct PField -> Base
+{
+    type : s;
+}
+
+@ToString, Print
+struct PTag
+{
+    name : s;
+    @Convert($arr, $string)
+    arguments : s[];
+}
