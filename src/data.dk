@@ -1,12 +1,16 @@
-﻿FLAG ISDEAD 0
+﻿DEF int uint
+
+FLAG true True
+FLAG ISDEAD 0
 FLAG ISALIVE 1
+FLAG untrue False
 
 struct Base
 {
     baseID : int;
 }
 
-@Print($PrintUBB)
+@Print($PrintUBB, 12, true)
 struct UpgradedBaseBoi -> Base
 {
     @DefaultValue($ muahahahh)

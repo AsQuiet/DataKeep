@@ -9,10 +9,10 @@ class DataKeepObject(object):
 
 class DataKeepStruct(DataKeepObject):
 
-    def __init__(self, name):
-        super().__init__(name, [])
+    def __init__(self, name, tags, fields):
+        super().__init__(name, tags)
         self.inheritance = ""
-        self.fields = []
+        self.fields = fields
 
     def __str__(self):
         s = "struct\n(\n"
@@ -33,8 +33,8 @@ class DataKeepStruct(DataKeepObject):
 
 class DataKeepField(DataKeepObject):
 
-    def __init__(self, name, type_):
-        super().__init__(name, [])
+    def __init__(self, name, type_, tags):
+        super().__init__(name, tags)
         self.type = type_
         
     def __str__(self):
@@ -52,16 +52,16 @@ class DataKeepField(DataKeepObject):
 
 class DataKeepTag(DataKeepObject):
 
-    def __init__(self, name):
+    def __init__(self, name, arguments):
         super().__init__(name, []) # tags should be ignored
-        self.arguments = []
+        self.arguments = arguments
         
     def __str__(self):
         s = "tag("
         s += "\nname : " + self.name
         s += "\narguments : \n"
         for arg in self.arguments:
-            s += "\n" + arg
+            s += str(arg) + ","
         return s + "\n)"
 
         

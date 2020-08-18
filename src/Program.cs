@@ -1,5 +1,6 @@
 ﻿using System;
 
+
 namespace DataKeep
 {
     class Program
@@ -28,6 +29,10 @@ namespace DataKeep
 
             DebugDK.StopStopwatch("main");
 
+            Exporter exporter = Exporter.FromParser(parser, "output.py");
+            
+            exporter.Export();
+            
 
         }
     }

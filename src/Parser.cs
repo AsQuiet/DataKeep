@@ -202,7 +202,7 @@ namespace DataKeep
 
             if (hasDef)
             {
-                defs[cmd[1]] = cmd[2];
+                defs[cmd[1]] = '"' + cmd[2] + '"';
             }
         }
 
@@ -229,8 +229,8 @@ namespace DataKeep
                 {
                     if (!currentArg.Contains('$'))
                         currentArg = GetFromHashtable(RemoveWhitespace(currentArg), ref flags);
-                    else
-                        currentArg = currentArg.Replace("$", "");
+                    //else
+                    //    currentArg = currentArg.Replace("$", "");
                     result.Add((currentArg));
                     currentArg = "";
                 }
@@ -328,12 +328,12 @@ namespace DataKeep
         private PTag[] GetTags()
         {
             
-            PTag defaultTag;
-            defaultTag.name = "default";
-            string[] temp = { };
-            defaultTag.arguments = temp;
+            //PTag defaultTag;
+            //defaultTag.name = "default";
+            //string[] temp = { };
+            //defaultTag.arguments = temp;
 
-            PTag[] defaultTs = { defaultTag };
+            PTag[] defaultTs = { };
 
             return (decoratorBuffer == "") ? defaultTs : ExtractTags(decoratorBuffer, true);
         }
