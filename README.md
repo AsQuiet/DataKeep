@@ -90,7 +90,7 @@ There are two presets in the release folder for mac & windows. Simply download y
 <li>Create a new project by entering, 'dotnet new console -o DataKeep'</li>
 <li>Paste all of the source code in this folder.</li>
     <li>In your .csproj file add this property group </li></ul>
-```html
+```
 <PropertyGroup>
     <RuntimeIdentifiers>win10-x64;ubuntu.16.10-x64;osx.10.12-x64</RuntimeIdentifiers>
 </PropertyGroup>
