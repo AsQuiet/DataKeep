@@ -1,27 +1,9 @@
-﻿DEF s string;
-DEF ee string;
-
-FLAG Transform 0
-FLAG SpriteRenderer 1
-FLAG ZombieSpell 2
-
-@NoBody
-struct Base
+﻿@Print
+struct ColorRGB
 {
-    entityID : s;
-    entityC : int;
-}
-
-@Entity($Player)
-struct Player -> Base
-{
-    @Components(Transform, SpriteRenderer)
-    compList : ee;
-}
-
-@Entity($Enemy)
-struct Enemy -> Base
-{
-    @Components(Transform, SpriteRenderer, ZombieSpell)
-    compList : ee;
+    r : int;
+    g : int;
+    b : int;
+    @Tag($alpha)
+    a : int;
 }
