@@ -19,7 +19,9 @@ namespace DataKeep.Tokens
         OpenCurly,
         CloseCurly,
         Abstract,
-        Comma
+        Comma,
+        Flag,
+        Def,
     }
 
     struct Token

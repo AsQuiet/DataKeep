@@ -21,6 +21,9 @@ namespace DataKeep
 
         private string decoratorBuffer = "";
 
+        public Hashtable defs = new Hashtable();
+        public Hashtable flags = new Hashtable();
+
         public Parser(Lexer lexer)
         {
             this.lexer = lexer;
@@ -35,6 +38,14 @@ namespace DataKeep
 
                 foreach (PStruct ps in structs)
                     Console.WriteLine(PStruct.ToString(ps));
+
+                Console.WriteLine("Definitions : ");
+                foreach (DictionaryEntry e in defs)
+                    Console.WriteLine(e.Key + " : " + defs[e.Key]);
+                Console.WriteLine("Flags : ");
+                foreach (DictionaryEntry e in flags)
+                    Console.WriteLine(e.Key + " : " + flags[e.Key]);
+
             }
         }
 
@@ -67,6 +78,7 @@ namespace DataKeep
             DetectField();
             DetectEndOfScope();
             DetectDecorator();
+            DetectCommand();
 
             currentLine += 1;
         }
@@ -104,7 +116,7 @@ namespace DataKeep
                 activeStruct.tags = GetTags();
                 fieldBuffer = new ArrayList();        // reset fields
 
-                DebugDK.Log("Extracted from line, structname : " + activeStruct.name + ", inheritance : " + activeStruct.inheritance + ", tags : " + Token.StringArrToString(ref activeStruct.tags, "-"));
+                DebugDK.Log("Extracted from line, structname : " + activeStruct.name + ", inheritance : " + activeStruct.inheritance + ", tags : ");
 
             }
 
@@ -128,13 +140,13 @@ namespace DataKeep
 
                 PField field;
                 field.name = RemoveWhitespace(name);
-                field.type = RemoveWhitespace(type);
+                field.type = GetFromHashtable(RemoveWhitespace(type), ref defs);
                 field.tags = GetTags();
 
                 if (inStruct)
                     fieldBuffer.Add(field);
 
-                DebugDK.Log("Extracted from line, fieldname : " + field.name + ", fieldtype: " + field.type+ ", tags : " + Token.StringArrToString(ref field.tags, "-") + ", adding field to fieldBuffer : " + inStruct);
+                DebugDK.Log("Extracted from line, fieldname : " + field.name + ", fieldtype: " + field.type+ ", tags : " +", adding field to fieldBuffer : " + inStruct);
             }
         }
 
@@ -175,32 +187,59 @@ namespace DataKeep
             }
         }
 
-        public static string[] ExtractArguments(string s, bool addDefault)
+        private void DetectCommand()
+        {
+            bool hasFlag = Token.IncludesType(GetCurrentLine(), TokenTypes.Flag);
+            string[] cmd = Token.ConvertToArray(Token.SmashTokens(GetCurrentLine(), ""));
+            
+            Token.PrintStringArr(ref cmd);
+            if (hasFlag)
+            {
+                flags[cmd[1]] = cmd[2];
+            }
+
+            bool hasDef = Token.IncludesType(GetCurrentLine(), TokenTypes.Def);
+
+            if (hasDef)
+            {
+                defs[cmd[1]] = cmd[2];
+            }
+        }
+
+
+        public string[] ExtractArguments(string s, bool addDefault)
         {
             ArrayList result = new ArrayList();
 
             string currentArg = "";
             bool inArg = false;
 
+
             for (int i = 0; i < s.Length; i++)
             {
-                if (s[i].Equals(')') && inArg)
+                char current = s[i];
+
+                if (current.Equals(')') && inArg)
                     inArg = false;
 
-                if (inArg && !s[i].Equals(','))
-                    currentArg += s[i];
+                if (!current.Equals(',') && inArg)
+                    currentArg += current;
 
-                if (inArg && s[i].Equals(','))
+                if ((current.Equals(',') || i == s.Length - 2) && inArg)
                 {
-                    result.Add(RemoveWhitespace(currentArg));
+                    if (!currentArg.Contains('$'))
+                        currentArg = GetFromHashtable(RemoveWhitespace(currentArg), ref flags);
+                    else
+                        currentArg = currentArg.Replace("$", "");
+                    result.Add((currentArg));
                     currentArg = "";
                 }
 
-                if (s[i].Equals('(') && !inArg)
+                if (current.Equals('(') && !inArg)
                     inArg = true;
 
             }
-            result.Add(RemoveWhitespace(currentArg));
+            
 
             if (addDefault)
                 result.Add("default");
@@ -208,13 +247,95 @@ namespace DataKeep
             return (string[])result.ToArray(typeof(string));
         }
 
-        private string[] GetTags()
+        public PTag[] ExtractTags(string s, bool addDefault)
         {
-         
-            string[] defaultTags = { "default" };
-            string[] result = (decoratorBuffer == "") ? defaultTags : ExtractArguments(decoratorBuffer, true);
+            ArrayList result = new ArrayList();
 
-            return result;
+            Console.WriteLine("extracting tags from " + s);
+
+            string currentTagName = "";
+            PTag currentTag;
+
+            string argString = "";
+            bool inArguments = false;
+
+            string[] tagArgs = { };
+
+            for (int i = 0; i < s.Length; i++)
+            {
+                char current = s[i];
+
+                {   // argument checking
+
+                    if (current.Equals('('))    // entering 
+                    {
+                        inArguments = true;
+                    }
+
+                    if (inArguments)            // adding
+                    {
+                        argString += current;
+                    }
+
+                    if (current.Equals(')'))    // extracting & reset
+                    {
+                        inArguments = false;
+                        tagArgs = ExtractArguments(argString, false);
+
+                        Console.WriteLine("found arguments : ");
+                        Token.PrintStringArr(ref tagArgs);
+
+                        argString = "";
+
+                    }
+                }
+
+                if (!inArguments)
+                {
+
+                    if (!current.Equals(')') && !current.Equals(','))
+                    {
+                        currentTagName += current;
+                    }
+
+                    if ((current.Equals(',') || i == s.Length - 1))
+                    {
+                        Console.WriteLine("moving on to next tag, current name is " + currentTagName);
+
+                        currentTag.name = RemoveWhitespace(currentTagName);
+                        currentTag.arguments = tagArgs;
+
+                        result.Add(currentTag);
+
+                        {
+                            currentTagName = "";
+                            string[] temp = { };
+                            tagArgs = temp;
+                        }
+
+                    }
+
+                }
+
+                
+
+            }
+
+
+            return (PTag[])result.ToArray(typeof(PTag));
+        }
+
+        private PTag[] GetTags()
+        {
+            
+            PTag defaultTag;
+            defaultTag.name = "default";
+            string[] temp = { };
+            defaultTag.arguments = temp;
+
+            PTag[] defaultTs = { defaultTag };
+
+            return (decoratorBuffer == "") ? defaultTs : ExtractTags(decoratorBuffer, true);
         }
 
         public static string RemoveWhitespace(string str)
@@ -271,6 +392,12 @@ namespace DataKeep
             DebugDK.Log("Struct inheritance is done.");
         }
 
+        private string GetFromHashtable(string s, ref Hashtable h)
+        {
+            if (h.ContainsKey(s))
+                return (string) h[s];
+            return s;
+        }
 
 
     }

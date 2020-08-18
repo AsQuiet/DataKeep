@@ -32,6 +32,7 @@ namespace DataKeep
         {
             keywordTypes = new Hashtable()
             {
+
                 {"struct" , TokenTypes.Struct },
                 {"->", TokenTypes.Inheritance },
                 {":", TokenTypes.TypeDecl },
@@ -44,6 +45,9 @@ namespace DataKeep
                 {"@", TokenTypes.Tag },
                 {",", TokenTypes.Comma },
                 {";", TokenTypes.SemiColon },
+                {"DEF", TokenTypes.Def },
+                {"FLAG", TokenTypes.Flag }
+
             };
         }
 

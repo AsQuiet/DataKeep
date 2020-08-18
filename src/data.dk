@@ -1,72 +1,20 @@
-﻿@(NoBody)
-struct Component
+﻿FLAG ISDEAD 0
+FLAG ISALIVE 1
+
+struct Base
 {
-
-	entityID : uint;
-	entityName : string;
-
+    baseID : int;
 }
 
-@(ToString, Print)
-struct Vector3
+@Print($PrintUBB)
+struct UpgradedBaseBoi -> Base
 {
-	x : double;
-	@(IsArrayToString)
-	y : double;
-	@(IsArray)
-	z : double;
-}
+    @DefaultValue($ muahahahh)
+    name : string;
+    @DefaultValue( 0,$some string, 12), Private       HJ _(true,untrue)
+    age : uint;
 
-@(ToString, Print)
-struct TransformComponent -> Component
-{
-	
-	@(NonArrayToString)
-	pos : Vector3;
-	@(NonArrayToString)
-	vel : Vector3;
-	@(NonArrayToString)
-	acc : Vector3;
+    @State(ISDEAD)
+    state : int;
 
 }
-
-@(ToString, Print)
-struct SpriteRendererComponent -> Component
-{
-
-	img : string;
-
-}
-
-
-@(NoBody, InitEntities)
-struct InitEntities
-{
-	Player : Entity;
-}
-
-@(Enum, NoBody)
-struct PlayerStates
-{
-	
-	Alive : i;
-	Dead : i;
-	UnDead : i;
-
-}
-
-@(DoSomething, SomethingElse("a name", 10, 23))
-struct TryMe
-{
-	name: string;
-}
-
-
-
-
-
-
-
-
-
-
