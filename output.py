@@ -1,7 +1,7 @@
 from datakeep import DataKeepStruct, DataKeepField, DataKeepTag
 DEFS = {
-"ee" : "string;",
-"s" : "string;"
+"s" : "string;",
+"ee" : "string;"
 }
 
 FLAGS = {
