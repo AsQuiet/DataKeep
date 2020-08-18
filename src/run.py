@@ -1,20 +1,20 @@
 ﻿import os, sys
+import datakeep
+# os.system("dotnet run");
 
-os.system("dotnet run");
+# lines = []
+# f = open("output.csbutnotcs", "r");
+# for line in f:
+# 	lines.append(line);
+# f.close()
 
-lines = []
-f = open("output.csbutnotcs", "r");
-for line in f:
-	lines.append(line);
-f.close()
+# f = open("output.cs", "w");
 
-f = open("output.cs", "w");
+# f.write("using System;\n")
+# f.write("namespace DataKeep.Output\n{")
 
-f.write("using System;\n")
-f.write("namespace DataKeep.Output\n{")
+# for line in lines:
+# 	f.write(line)
 
-for line in lines:
-	f.write(line)
-
-f.write("\n}")
-f.close()
+# f.write("\n}")
+# f.close()

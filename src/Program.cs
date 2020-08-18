@@ -29,7 +29,7 @@ namespace DataKeep
             DebugDK.StopStopwatch("parser");
             parser.PrintAllData();
 
-            DebugDK.StartStopwatch("syntaxparser");
+            /*DebugDK.StartStopwatch("syntaxparser");
             SyntaxParser syntaxParser = new SyntaxParser(new FileHandler(winPath + "/DataManager/DataKeep/main.dks"));
             syntaxParser.ParseAllLines();
             DebugDK.StopStopwatch("syntaxparser");
@@ -39,7 +39,7 @@ namespace DataKeep
             Linker linker = new Linker(syntaxParser, parser);
             linker.Convert();
             linker.OutputToFile("output.csbutnotcs");
-            DebugDK.StopStopwatch("linker");
+            DebugDK.StopStopwatch("linker");*/
 
             DebugDK.StopStopwatch("main");
 

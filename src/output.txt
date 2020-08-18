@@ -1,0 +1,15 @@
+using System;
+namespace DataKeep.Output 
+{
+struct player
+{
+public string name;
+public uint entityId;
+public int age = 0;
+public static void Print(player struct_)
+{
+Console.WriteLine("\nentityId" + struct_.entityId);
+Console.WriteLine("\nage" + struct_.age);
+}
+}
+}

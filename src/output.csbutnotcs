@@ -9,7 +9,7 @@ public static string ToString(Vector3 struct_)
 {
 string s = "(";
 s += "\nx : " + struct_.x;
-s += "\ny : " + struct_.y;
+foreach(double e in struct_.y) {s += double.ToString(e);}
 foreach(double e in struct_.z) {s += e;}
 
 return s + ")";

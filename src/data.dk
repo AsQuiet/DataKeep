@@ -1,6 +1,4 @@
-﻿
-
-@(NoBody)
+﻿@(NoBody)
 struct Component
 {
 
@@ -56,3 +54,19 @@ struct PlayerStates
 	UnDead : i;
 
 }
+
+@(DoSomething, SomethingElse("a name", 10, 23))
+struct TryMe
+{
+	name: string;
+}
+
+
+
+
+
+
+
+
+
+
