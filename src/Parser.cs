@@ -37,14 +37,14 @@ namespace DataKeep
                 DebugDK.Log("\nWriting out all of the resulting parser data (PStructs) : ");
 
                 foreach (PStruct ps in structs)
-                    Console.WriteLine(PStruct.ToString(ps));
+                    DebugDK.Log(PStruct.ToString(ps));
 
-                Console.WriteLine("Definitions : ");
+                DebugDK.Log("Definitions : ");
                 foreach (DictionaryEntry e in defs)
-                    Console.WriteLine(e.Key + " : " + defs[e.Key]);
-                Console.WriteLine("Flags : ");
+                    DebugDK.Log(e.Key + " : " + defs[e.Key]);
+                DebugDK.Log("Flags : ");
                 foreach (DictionaryEntry e in flags)
-                    Console.WriteLine(e.Key + " : " + flags[e.Key]);
+                    DebugDK.Log(e.Key + " : " + flags[e.Key]);
 
             }
         }
@@ -192,7 +192,7 @@ namespace DataKeep
             bool hasFlag = Token.IncludesType(GetCurrentLine(), TokenTypes.Flag);
             string[] cmd = Token.ConvertToArray(Token.SmashTokens(GetCurrentLine(), ""));
             
-            Token.PrintStringArr(ref cmd);
+            //Token.PrintStringArr(ref cmd);
             if (hasFlag)
             {
                 flags[cmd[1]] = cmd[2];
@@ -251,7 +251,7 @@ namespace DataKeep
         {
             ArrayList result = new ArrayList();
 
-            Console.WriteLine("extracting tags from " + s);
+            DebugDK.Log("extracting tags from " + s);
 
             string currentTagName = "";
             PTag currentTag;
@@ -282,8 +282,8 @@ namespace DataKeep
                         inArguments = false;
                         tagArgs = ExtractArguments(argString, false);
 
-                        Console.WriteLine("found arguments : ");
-                        Token.PrintStringArr(ref tagArgs);
+                        DebugDK.Log("found arguments : ");
+                        //Token.PrintStringArr(ref tagArgs);
 
                         argString = "";
 
@@ -300,7 +300,7 @@ namespace DataKeep
 
                     if ((current.Equals(',') || i == s.Length - 1))
                     {
-                        Console.WriteLine("moving on to next tag, current name is " + currentTagName);
+                        DebugDK.Log("moving on to next tag, current name is " + currentTagName);
 
                         currentTag.name = RemoveWhitespace(currentTagName);
                         currentTag.arguments = tagArgs;

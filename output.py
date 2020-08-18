@@ -1,13 +1,13 @@
 from datakeep import DataKeepStruct, DataKeepField, DataKeepTag
 DEFS = {
-"s" : "string;",
-"ee" : "string;"
+"ee" : "string;",
+"s" : "string;"
 }
 
 FLAGS = {
+"ZombieSpell" : 2,
 "Transform" : 0,
-"SpriteRenderer" : 1,
-"ZombieSpell" : 2
+"SpriteRenderer" : 1
 }
 
 ALL_STRUCTS = []

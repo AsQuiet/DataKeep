@@ -15,19 +15,15 @@ class DataKeepStruct(DataKeepObject):
         self.fields = fields
 
     def __str__(self):
-        s = "struct\n(\n"
+        s = "Struct("
 
-        s += "name : " + self.name + "\n"
-        s += "inheritance : " + self.inheritance + "\n"
-
-        s += "fields : "
-        for field in self.fields:
-            s += "\n" + str(field)
-        
-
-        s += "tags : "
+        s +=  self.name + ", tags : ["
         for tag in self.tags:
-            s += "\n" + str(tag)
+            s += str(tag) + ", "
+
+        s += "] fields : "
+        for field in self.fields:
+            s += "\n    " + str(field)
 
         return s + "\n)"
 
@@ -38,15 +34,15 @@ class DataKeepField(DataKeepObject):
         self.type = type_
         
     def __str__(self):
-        s = "field{\n"
+        s = "Field("
 
-        s += "name : " + self.name + "\n"
-        s += "type : " + self.type + "\n"
+        s += self.name + ", "
+        s += self.type + ", "
 
-        s += "tags : "
+        s += "tags : ["
         for tag in self.tags:
-            s += "\n" + str(tag)
-        s += "\n}\n"
+            s += str(tag)
+        s += "])"
         
         return s
 
@@ -57,12 +53,12 @@ class DataKeepTag(DataKeepObject):
         self.arguments = arguments
         
     def __str__(self):
-        s = "tag("
-        s += "\nname : " + self.name
-        s += "\narguments : \n"
+        s = "Tag("
+        s += self.name
+        s += ", ["
         for arg in self.arguments:
             s += str(arg) + ","
-        return s + "\n)"
+        return s + "])"
 
         
 def LOOP_ALL_STRUCTS(structs, method, output_path="output.txt", append_file=True):
@@ -83,28 +79,35 @@ def WRITE_END(method, output_path="output.txt"):
     method(f)
     f.close()
 
-def HasTags(structfield, *args):
+def write(file, text):
+    file.write(text + "\n")
+
+def HasTags(obj, *args):
         result = True
 
         for tag in args:
             
             found = False
-            for mTag in structfield.tags:
+            for mTag in obj.tags:
                 found = found or mTag.name == tag
             result = result and found 
 
         return result
 
-def GetTag(structfield, tagName):
-    for tag in structfield.tags:
-        if (tag.name == tagName):
-            return tag
-    return None
+def GetTags(obj):
+    return obj.tags
+
+def GetTag(obj, index):
+    return obj.tags[index]
+
+def GetFields(struct):
+    return struct.fields
+
+def GetField(struct, index):
+    return struct.fields[index]
 
 def GetArguments(tag):
-    if (tag == None):
-        return None
     return tag.arguments
 
-def write(file, text):
-    file.write(text + "\n")
+def GetArgument(tag, index):
+    return tag.arguments[0]

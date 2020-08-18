@@ -8,14 +8,14 @@ namespace DataKeep
         static void Main(string[] args)
         {
 
-            string macPath = "/Users/QuinnyBoy/Documents";
-            //string winPath = "E:\\PROJECTS";               
+            string path = args[0];
+            string outputpath = args[1] + ".py";
 
             DebugDK.StartStopwatch("main");
-            DebugDK.SetLog(true);
+            DebugDK.SetLog(false);
 
             DebugDK.StartStopwatch("lexer");
-            Lexer lexer = new Lexer(new FileHandler(macPath + "/DataManager/DataKeep/data.dk"));
+            Lexer lexer = new Lexer(new FileHandler(path));
             lexer.LexAllLines();
             DebugDK.StopStopwatch("lexer");
 
@@ -25,15 +25,16 @@ namespace DataKeep
             parser.ParseAllLines();
             parser.GiveStructInheritance();
             DebugDK.StopStopwatch("parser");
-            parser.PrintAllData();
+            //parser.PrintAllData();
+
+         
+
+            DebugDK.StartStopwatch("exporter");
+            Exporter exporter = Exporter.FromParser(parser, outputpath);
+            exporter.Export();
+            DebugDK.StopStopwatch("exporter");
 
             DebugDK.StopStopwatch("main");
-
-            Exporter exporter = Exporter.FromParser(parser, "output.py");
-            
-            exporter.Export();
-            
-
         }
     }
 
