@@ -21,7 +21,7 @@ and now run
 ```
 DataKeep data.dk colordata 
 ```
-DataKeep parses all this data into Python objects which you can then use in a combination with a bunch of methods that datakeep.py provides, to specify how this data should be exported.
+DataKeep parses all this data into Python objects that you can then use in combination with a bunch of methods that datakeep.py provides, to specify how this data should be exported.
 <br>Here is an example of a script that converts this data into a usable C file.
 ```python
 from datakeep import *
@@ -86,18 +86,19 @@ printf("alpha : %d", struct_->a);
 There are two presets in the release folder for mac & windows. Simply download your release, add it to your system path and you can run DataKeep. 
 <br>If the releases do not work for some reason, follow these steps to build it yourself.
 <ul>
-<li>Make sure you .NET installed (C#, Visual Studio, ...) => can you run dotnet in terminal?</li>
-<li>Create a new project with, 'dotnet new console -o DataKeep'</li>
+<li>Make sure you have .NET installed (C#, Visual Studio, ...), (can you run dotnet in terminal?)</li>
+<li>Create a new project by entering, 'dotnet new console -o DataKeep'</li>
 <li>Paste all of the source code in this folder.</li>
-<li>In your .csproj file add this property group ("<" signs are gone because of Markdown..)
-
-PropertyGroup>
-    RuntimeIdentifiers>win10-x64;ubuntu.16.10-x64;osx.10.12-x64/RuntimeIdentifiers>/PropertyGroup>
-
+<li>In your .csproj file add this property group 
+```html
+<PropertyGroup>
+    <RuntimeIdentifiers>win10-x64;ubuntu.16.10-x64;osx.10.12-x64</RuntimeIdentifiers>
+</PropertyGroup>
+```
 </li>
 <li>Then go into your project and run:
 <br> dotnet publish -c Release -r [RuntimeIdentifier]
 </li>
 </ul>
-This should publish & build the entire thing for you.
+This should build the entire thing for you.
 ## Documentation
