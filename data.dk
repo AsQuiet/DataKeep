@@ -1,9 +1,0 @@
-﻿@Print
-struct ColorRGB
-{
-    r : int;
-    g : int;
-    b : int;
-    @Tag($alpha)
-    a : int;
-}

@@ -1,0 +1,16 @@
+For mac:
+1. Open terminal
+2. Type `sudo nano /etc/paths`
+3. Enter password
+4. Go to bottom of file and add the path `/usr/local/Share/DataKeep/`
+5. Hit control-x to quit and press Y to save
+6. Test by typing in `echo $PATH` in terminal
+
+For windows:
+1. Go to the search bar and type in `env`
+2. Click on `Edit the system environment variables`
+3. Choose the ènviroment buttons
+4. Under system variables, select `Path` and click edit
+5. Click the new button and enter the following path : `C:\DataKeep\`
+
+NOTE : You might have to restart the terminal/cmd for the changes to keep effect!
